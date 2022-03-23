@@ -237,11 +237,12 @@ void Subtraction::prot2_pi2_rot_func(TVector3 V3_2prot_corr[2],TVector3 V3_2prot
         p_miss_perp[i][0] = p_miss_perp2[0];
         p_miss_perp[i][1] = p_miss_perp2[1];
         //Changed below to reflect the rotation function being performed. From N_2p_1pi -> N_1p_2pi
-        prob2p2pito1p1pi[i][0]= -(N_1p_2pi[i]/N_all)*P_tot[0];
+        prob2p2pito1p1pi[i][0]= -(N_1p_2pi[i]/N_all)*P_tot[0]; //-> Already made negative when P_Tot is calc
         prob2p2pito1p1pi[i][1]= -(N_1p_2pi[i]/N_all)*P_tot[1];
       }
       //---------------------------------------------------2p2pi->2p1pi->1p1pi-------------------------------------------------------
       P_tot[0] = P_tot[1] = 0;
+      //Loop twice because we can get this two ways
     for(int i=0;i<2;i++)
     {
       prot2_pi1_rot_func(V3_2prot_corr, V3_2prot_uncorr, V3_2pi[i], V4_2prot_corr, V4_2pi[i], q_pi[i], V4_el, Ecal2, p_miss_perp2, P_tot);
@@ -250,7 +251,7 @@ void Subtraction::prot2_pi2_rot_func(TVector3 V3_2prot_corr[2],TVector3 V3_2prot
       //Ecal[1][i] = Ecal2[1];
       p_miss_perp[0][i] = p_miss_perp2[0];
       p_miss_perp[1][i] = p_miss_perp2[1];
-      prob2p2pito1p1pi[0][i] = -(N_2p_1pi[i]/N_all)*P_tot[0];
+      prob2p2pito1p1pi[0][i] = -(N_2p_1pi[i]/N_all)*P_tot[0]; //Already made negative in 2p_1pi calc
       prob2p2pito1p1pi[1][i] = -(N_2p_1pi[i]/N_all)*P_tot[1];
       //Positive bc it is doubly subtracted ^
     }
@@ -259,7 +260,7 @@ void Subtraction::prot2_pi2_rot_func(TVector3 V3_2prot_corr[2],TVector3 V3_2prot
     {
         for(int j=0;j<2;j++)
         {
-          prob2p2pito1p1pi[i][j] += N_1p_1pi[i][j]/N_all; //probability = 2stepWeight - 1stepWeight (prob = prob - N1...)
+          prob2p2pito1p1pi[i][j] += -N_1p_1pi[i][j]/N_all; //probability = 2stepWeight - 1stepWeight (prob = prob - N1...)
           P_tot_2p[i][j] = prob2p2pito1p1pi[i][j];
         }
     }

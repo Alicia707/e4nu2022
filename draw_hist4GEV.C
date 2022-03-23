@@ -13,7 +13,7 @@
 using namespace std;
 
 double N_E_bins;
-//test
+
 void divideByBinWidth(double NumBins, TH1F* h1);
 void reflectOverX(double NumBins, TH1F* h1);
 double findMax(TH1F* h1, TH1F* h2, TH1F* h3);
@@ -203,6 +203,227 @@ int main(int argc, char* argv[]){
   h1_E_tot_3p1pi_pipl->Draw("HIST SAME");
   //Create png
   c4->Print("piplSubtraction_4GeV.png");
+
+
+  //Flip stuff over the x-axis such that we can see how much of etot the sub takes up
+  reflectOverX(N_E_bins, h1_E_tot_2p1pi_1p1pi_pimi);
+  reflectOverX(N_E_bins, h1_E_tot_1p2pi_pimi);
+  reflectOverX(N_E_bins, h1_E_tot_2p2pi_pimi);
+  reflectOverX(N_E_bins, h1_E_tot_1p3pi_pimi);
+  reflectOverX(N_E_bins, h1_E_tot_3p1pi_pimi);
+  reflectOverX(N_E_bins, h1_E_tot_2p1pi_1p1pi_pipl);
+  reflectOverX(N_E_bins, h1_E_tot_1p2pi_pipl);
+  reflectOverX(N_E_bins, h1_E_tot_2p2pi_pipl);
+  reflectOverX(N_E_bins, h1_E_tot_1p3pi_pipl);
+  reflectOverX(N_E_bins, h1_E_tot_3p1pi_pipl);
+
+  // - - - 2p1pi Multiplicity
+  TCanvas *c5 = new TCanvas("c5","",567,370);
+  double c5Min = findMin(h1_E_cal_1p1pi_pimi_ONLY, h1_E_cal_pimi_sub, h1_E_tot_2p1pi_1p1pi_pimi, h1_E_cal_1p1pi_pimi_ONLY, h1_E_cal_pimi_sub, h1_E_tot_2p1pi_1p1pi_pimi);
+  double c5Max = findMax(h1_E_cal_1p1pi_pimi_ONLY, h1_E_cal_pimi_sub, h1_E_tot_2p1pi_1p1pi_pimi);
+  h1_E_cal_1p1pi_pimi_ONLY->SetMinimum(c5Min *1.25);
+  h1_E_cal_1p1pi_pimi_ONLY->SetMaximum(c5Max *1.1);
+  h1_E_cal_1p1pi_pimi_ONLY->SetLineColor(2);
+  h1_E_tot_2p1pi_1p1pi_pimi->SetLineColor(4);
+  h1_E_cal_pimi_sub->SetLineColor(3);
+  h1_E_cal_pimi_sub->SetLineWidth(2);
+  //Axis stuff
+  h1_E_cal_1p1pi_pimi_ONLY->GetXaxis()->SetTitle("E_{cal}");
+  h1_E_cal_1p1pi_pimi_ONLY->GetXaxis()->SetTitleSize(0.05);
+  h1_E_cal_1p1pi_pimi_ONLY->GetXaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pimi_ONLY->GetYaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pimi_ONLY->GetXaxis()->SetTitleOffset(0.7);
+  //Draw things :)
+  h1_E_cal_1p1pi_pimi_ONLY->Draw("HIST");
+  h1_E_tot_2p1pi_1p1pi_pimi->Draw("HIST SAME");
+  h1_E_cal_pimi_sub->Draw("HIST SAME");
+  //create png
+  c5->Print("2p1pi_pimi_Multiplicity_4GeV.png");
+
+ //1p2pi pimi Multiplicity
+  TCanvas *c6 = new TCanvas("c6","",567,370);
+  double c6Min = findMin(h1_E_cal_1p1pi_pimi_ONLY, h1_E_cal_pimi_sub, h1_E_tot_1p2pi_pimi, h1_E_cal_1p1pi_pimi_ONLY, h1_E_cal_pimi_sub, h1_E_tot_1p2pi_pimi);
+  h1_E_cal_1p1pi_pimi_ONLY->SetMinimum(c6Min *1.25);
+  h1_E_cal_1p1pi_pimi_ONLY->SetLineColor(2);
+  h1_E_tot_1p2pi_pimi->SetLineColor(40);
+  h1_E_cal_pimi_sub->SetLineColor(3);
+  h1_E_cal_pimi_sub->SetLineWidth(2);
+  //Axis stuff
+  h1_E_cal_1p1pi_pimi_ONLY->GetXaxis()->SetTitle("E_{cal}");
+  h1_E_cal_1p1pi_pimi_ONLY->GetXaxis()->SetTitleSize(0.05);
+  h1_E_cal_1p1pi_pimi_ONLY->GetXaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pimi_ONLY->GetYaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pimi_ONLY->GetXaxis()->SetTitleOffset(0.7);
+  //Draw things :)
+  h1_E_cal_1p1pi_pimi_ONLY->Draw("HIST");
+  h1_E_tot_1p2pi_pimi->Draw("HIST SAME");
+  h1_E_cal_pimi_sub->Draw("HIST SAME");
+  //create png
+  c6->Print("1p2pi_pimi_Multiplicity_4GeV.png");
+
+  //2p2pi pimi Multiplicity
+  TCanvas *c7 = new TCanvas("c7","",567,370);
+  double c7Min = findMin(h1_E_cal_1p1pi_pimi_ONLY, h1_E_cal_pimi_sub, h1_E_tot_2p2pi_pimi, h1_E_cal_1p1pi_pimi_ONLY, h1_E_cal_pimi_sub, h1_E_tot_2p2pi_pimi);
+  h1_E_cal_1p1pi_pimi_ONLY->SetMinimum(c7Min *1.25);
+  h1_E_cal_1p1pi_pimi_ONLY->SetLineColor(2);
+  h1_E_tot_2p2pi_pimi->SetLineColor(6);
+  h1_E_cal_pimi_sub->SetLineColor(3);
+  h1_E_cal_pimi_sub->SetLineWidth(2);
+  //Axis stuff
+  h1_E_cal_1p1pi_pimi_ONLY->GetXaxis()->SetTitle("E_{cal}");
+  h1_E_cal_1p1pi_pimi_ONLY->GetXaxis()->SetTitleSize(0.05);
+  h1_E_cal_1p1pi_pimi_ONLY->GetXaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pimi_ONLY->GetYaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pimi_ONLY->GetXaxis()->SetTitleOffset(0.7);
+  //Draw things :)
+  h1_E_cal_1p1pi_pimi_ONLY->Draw("HIST");
+  h1_E_tot_2p2pi_pimi->Draw("HIST SAME");
+  h1_E_cal_pimi_sub->Draw("HIST SAME");
+  //create png
+  c7->Print("2p2pi_pimi_Multiplicity_4GeV.png");
+
+  TCanvas *c8 = new TCanvas("c8","",567,370);
+  double c8Min = findMin(h1_E_cal_1p1pi_pimi_ONLY, h1_E_cal_pimi_sub, h1_E_tot_1p3pi_pimi, h1_E_cal_1p1pi_pimi_ONLY, h1_E_cal_pimi_sub, h1_E_tot_1p3pi_pimi);
+  h1_E_cal_1p1pi_pimi_ONLY->SetMinimum(c8Min *1.25);
+  h1_E_cal_1p1pi_pimi_ONLY->SetLineColor(2);
+  h1_E_tot_1p3pi_pimi->SetLineColor(7);
+  h1_E_cal_pimi_sub->SetLineColor(3);
+  h1_E_cal_pimi_sub->SetLineWidth(2);
+  //Axis stuff
+  h1_E_cal_1p1pi_pimi_ONLY->GetXaxis()->SetTitle("E_{cal}");
+  h1_E_cal_1p1pi_pimi_ONLY->GetXaxis()->SetTitleSize(0.05);
+  h1_E_cal_1p1pi_pimi_ONLY->GetXaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pimi_ONLY->GetYaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pimi_ONLY->GetXaxis()->SetTitleOffset(0.7);
+  //Draw things :)
+  h1_E_cal_1p1pi_pimi_ONLY->Draw("HIST");
+  h1_E_tot_1p3pi_pimi->Draw("HIST SAME");
+  h1_E_cal_pimi_sub->Draw("HIST SAME");
+  //create png
+  c8->Print("1p3pi_pimi_Multiplicity_4GeV.png");
+
+  TCanvas *c9 = new TCanvas("c9","",567,370);
+  double c9Min = findMin(h1_E_cal_1p1pi_pimi_ONLY, h1_E_cal_pimi_sub, h1_E_tot_3p1pi_pimi, h1_E_cal_1p1pi_pimi_ONLY, h1_E_cal_pimi_sub, h1_E_tot_3p1pi_pimi);
+  h1_E_cal_1p1pi_pimi_ONLY->SetMinimum(c9Min *1.25);
+  h1_E_cal_1p1pi_pimi_ONLY->SetLineColor(2);
+  h1_E_tot_3p1pi_pimi->SetLineColor(8);
+  h1_E_cal_pimi_sub->SetLineColor(3);
+  h1_E_cal_pimi_sub->SetLineWidth(2);
+  //Axis stuff
+  h1_E_cal_1p1pi_pimi_ONLY->GetXaxis()->SetTitle("E_{cal}");
+  h1_E_cal_1p1pi_pimi_ONLY->GetXaxis()->SetTitleSize(0.05);
+  h1_E_cal_1p1pi_pimi_ONLY->GetXaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pimi_ONLY->GetYaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pimi_ONLY->GetXaxis()->SetTitleOffset(0.7);
+  //Draw things :)
+  h1_E_cal_1p1pi_pimi_ONLY->Draw("HIST");
+  h1_E_tot_3p1pi_pimi->Draw("HIST SAME");
+  h1_E_cal_pimi_sub->Draw("HIST SAME");
+  //create png
+  c9->Print("3p1pi_pimi_Multiplicity_4GeV.png");
+
+  TCanvas *c10 = new TCanvas("c10","",567,370);
+  double c10Min = findMin(h1_E_cal_1p1pi_pipl_ONLY, h1_E_cal_pipl_sub, h1_E_tot_2p1pi_1p1pi_pipl, h1_E_cal_1p1pi_pipl_ONLY, h1_E_cal_pipl_sub, h1_E_tot_2p1pi_1p1pi_pipl);
+  double c10Max = findMax(h1_E_cal_1p1pi_pipl_ONLY, h1_E_cal_pipl_sub, h1_E_tot_2p1pi_1p1pi_pipl);
+  h1_E_cal_1p1pi_pipl_ONLY->SetMinimum(c10Min *1.25);
+  h1_E_cal_1p1pi_pipl_ONLY->SetMaximum(c10Max *1.1);
+  h1_E_cal_1p1pi_pipl_ONLY->SetLineColor(2);
+  h1_E_tot_2p1pi_1p1pi_pipl->SetLineColor(4);
+  h1_E_cal_pipl_sub->SetLineColor(3);
+  h1_E_cal_pipl_sub->SetLineWidth(2);
+  //Axis stuff
+  h1_E_cal_1p1pi_pipl_ONLY->GetXaxis()->SetTitle("E_{cal}");
+  h1_E_cal_1p1pi_pipl_ONLY->GetXaxis()->SetTitleSize(0.05);
+  h1_E_cal_1p1pi_pipl_ONLY->GetXaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pipl_ONLY->GetYaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pipl_ONLY->GetXaxis()->SetTitleOffset(0.7);
+  //Draw things :)
+  h1_E_cal_1p1pi_pipl_ONLY->Draw("HIST");
+  h1_E_tot_2p1pi_1p1pi_pipl->Draw("HIST SAME");
+  h1_E_cal_pipl_sub->Draw("HIST SAME");
+  //create png
+  c10->Print("2p1pi_pipl_Multiplicity_4GeV.png");
+
+  TCanvas *c11 = new TCanvas("c11","",567,370);
+  double c11Min = findMin(h1_E_cal_1p1pi_pipl_ONLY, h1_E_cal_pipl_sub, h1_E_tot_1p2pi_pipl, h1_E_cal_1p1pi_pipl_ONLY, h1_E_cal_pipl_sub, h1_E_tot_1p2pi_pipl);
+  h1_E_cal_1p1pi_pipl_ONLY->SetMinimum(c11Min *1.25);
+  h1_E_cal_1p1pi_pipl_ONLY->SetLineColor(2);
+  h1_E_tot_1p2pi_pipl->SetLineColor(40);
+  h1_E_cal_pipl_sub->SetLineColor(3);
+  h1_E_cal_pipl_sub->SetLineWidth(2);
+  //Axis stuff
+  h1_E_cal_1p1pi_pipl_ONLY->GetXaxis()->SetTitle("E_{cal}");
+  h1_E_cal_1p1pi_pipl_ONLY->GetXaxis()->SetTitleSize(0.05);
+  h1_E_cal_1p1pi_pipl_ONLY->GetXaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pipl_ONLY->GetYaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pipl_ONLY->GetXaxis()->SetTitleOffset(0.7);
+  //Draw things :)
+  h1_E_cal_1p1pi_pipl_ONLY->Draw("HIST");
+  h1_E_tot_1p2pi_pipl->Draw("HIST SAME");
+  h1_E_cal_pipl_sub->Draw("HIST SAME");
+  //create png
+  c11->Print("1p2pi_pipl_Multiplicity_4GeV.png");
+
+  TCanvas *c12 = new TCanvas("c12","",567,370);
+  double c12Min = findMin(h1_E_cal_1p1pi_pipl_ONLY, h1_E_cal_pipl_sub, h1_E_tot_2p2pi_pipl, h1_E_cal_1p1pi_pipl_ONLY, h1_E_cal_pipl_sub, h1_E_tot_2p2pi_pipl);
+  h1_E_cal_1p1pi_pipl_ONLY->SetMinimum(c12Min *1.25);
+  h1_E_cal_1p1pi_pipl_ONLY->SetLineColor(2);
+  h1_E_tot_2p2pi_pipl->SetLineColor(6);
+  h1_E_cal_pipl_sub->SetLineColor(3);
+  h1_E_cal_pipl_sub->SetLineWidth(2);
+  //Axis stuff
+  h1_E_cal_1p1pi_pipl_ONLY->GetXaxis()->SetTitle("E_{cal}");
+  h1_E_cal_1p1pi_pipl_ONLY->GetXaxis()->SetTitleSize(0.05);
+  h1_E_cal_1p1pi_pipl_ONLY->GetXaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pipl_ONLY->GetYaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pipl_ONLY->GetXaxis()->SetTitleOffset(0.7);
+  //Draw things :)
+  h1_E_cal_1p1pi_pipl_ONLY->Draw("HIST");
+  h1_E_tot_2p2pi_pipl->Draw("HIST SAME");
+  h1_E_cal_pipl_sub->Draw("HIST SAME");
+  //create png
+  c12->Print("2p2pi_pipl_Multiplicity_4GeV.png");
+
+  TCanvas *c13 = new TCanvas("c13","",567,370);
+  double c13Min = findMin(h1_E_cal_1p1pi_pipl_ONLY, h1_E_cal_pipl_sub, h1_E_tot_1p3pi_pipl,h1_E_cal_1p1pi_pipl_ONLY, h1_E_cal_pipl_sub, h1_E_tot_1p3pi_pipl);
+  h1_E_cal_1p1pi_pipl_ONLY->SetMinimum(c13Min *1.25);
+  h1_E_cal_1p1pi_pipl_ONLY->SetLineColor(2);
+  h1_E_tot_1p3pi_pipl->SetLineColor(7);
+  h1_E_cal_pipl_sub->SetLineColor(3);
+  h1_E_cal_pipl_sub->SetLineWidth(2);
+  //Axis stuff
+  h1_E_cal_1p1pi_pipl_ONLY->GetXaxis()->SetTitle("E_{cal}");
+  h1_E_cal_1p1pi_pipl_ONLY->GetXaxis()->SetTitleSize(0.05);
+  h1_E_cal_1p1pi_pipl_ONLY->GetXaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pipl_ONLY->GetYaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pipl_ONLY->GetXaxis()->SetTitleOffset(0.7);
+  //Draw things :)
+  h1_E_cal_1p1pi_pipl_ONLY->Draw("HIST");
+  h1_E_tot_1p3pi_pipl->Draw("HIST SAME");
+  h1_E_cal_pipl_sub->Draw("HIST SAME");
+  //create png
+  c13->Print("1p3pi_pipl_Multiplicity_4GeV.png");
+
+  //3p1pi pipl Multiplicity
+  TCanvas *c14 = new TCanvas("c14","",567,370);
+  double c14Min = findMin(h1_E_cal_1p1pi_pipl_ONLY, h1_E_cal_pipl_sub, h1_E_tot_3p1pi_pipl, h1_E_cal_1p1pi_pipl_ONLY, h1_E_cal_pipl_sub, h1_E_tot_3p1pi_pipl);
+  h1_E_cal_1p1pi_pipl_ONLY->SetMinimum(c14Min *1.25);
+  h1_E_cal_1p1pi_pipl_ONLY->SetLineColor(2);
+  h1_E_tot_3p1pi_pipl->SetLineColor(8);
+  h1_E_cal_pipl_sub->SetLineColor(3);
+  h1_E_cal_pipl_sub->SetLineWidth(2);
+  //Axis stuff
+  h1_E_cal_1p1pi_pipl_ONLY->GetXaxis()->SetTitle("E_{cal}");
+  h1_E_cal_1p1pi_pipl_ONLY->GetXaxis()->SetTitleSize(0.05);
+  h1_E_cal_1p1pi_pipl_ONLY->GetXaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pipl_ONLY->GetYaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pipl_ONLY->GetXaxis()->SetTitleOffset(0.7);
+  //Draw things :)
+  h1_E_cal_1p1pi_pipl_ONLY->Draw("HIST");
+  h1_E_tot_3p1pi_pipl->Draw("HIST SAME");
+  h1_E_cal_pipl_sub->Draw("HIST SAME");
+  //create png
+  c14->Print("3p1pi_pipl_Multiplicity_4GeV.png");
 
   return 0;
 
