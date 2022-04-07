@@ -13,6 +13,9 @@ public :
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
 
+   std::string ftarget;    // The target name  // ------------------------------->>>>>>>>>>>>>Mariana
+   std::string fbeam_en;   // The beam energy  // ------------------------------->>>>>>>>>>>>>Mariana
+
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
    // Declaration of leaf types
@@ -207,7 +210,7 @@ public :
    TBranch        *b_sumKEf;   //!
    TBranch        *b_calresp0;   //!
 
-   gst(TTree *tree=0);
+   gst(std::string, std::string, TTree *tree = 0);
    virtual ~gst();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
@@ -221,14 +224,18 @@ public :
 #endif
 
 #ifdef gst_cxx
-gst::gst(TTree *tree) : fChain(0)
+gst::gst(std::string a_ftarget, std::string a_fbeam_en, TTree *tree) : fChain(0)
 {
+  fbeam_en = a_fbeam_en;
+  ftarget = a_ftarget;
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
    if (tree == 0) {
-      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("/pnfs/genie/persistent/users/apapadop/SuSav2/Exclusive/electrons/56Fe_4461GeV/apapadop_Rad_SuSav2_56Fe_4461GeV.root");
+      //TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("/pnfs/genie/persistent/users/apapadop/SuSav2/Exclusive/electrons/56Fe_4461GeV/apapadop_Rad_SuSav2_56Fe_4461GeV.root");
+      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject(Form("/w/hallb-scshelf2102/clas/claseg2/apapadop/eresmaid_%s_%s_hA2018_LFG_FSI_NoRadCorr_3M.root", ftarget.c_str(), fbeam_en.c_str()));
       if (!f || !f->IsOpen()) {
-         f = new TFile("/pnfs/genie/persistent/users/apapadop/SuSav2/Exclusive/electrons/56Fe_4461GeV/apapadop_Rad_SuSav2_56Fe_4461GeV.root");
+        f = new TFile(Form("/w/hallb-scshelf2102/clas/clase2/amand/eresmaid_%s_%s_hA2018_LFG_FSI_NoRadCorr_3M.root", ftarget.c_str(),fbeam_en.c_str()));
+         //f = new TFile("/pnfs/genie/persistent/users/apapadop/SuSav2/Exclusive/electrons/56Fe_4461GeV/apapadop_Rad_SuSav2_56Fe_4461GeV.root");
       }
       f->GetObject("gst",tree);
 
