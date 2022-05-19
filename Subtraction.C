@@ -140,7 +140,6 @@ void Subtraction::prot1_pi3_rot_func(TVector3  V3prot, TVector3 V3pi[3], TLorent
 
 
 void Subtraction::prot2_pi1_rot_func(TVector3 V3_2prot_corr[2],TVector3 V3_2prot_uncorr[2],TVector3 V3_1pi, TLorentzVector V4_2prot_corr[2], TLorentzVector V4_1pi, int q_pi, TLorentzVector V4_el, double Ecal[2], double p_miss_perp[2], double P_tot[2]){
-
     const int N_2prot=2;
     TVector3 V3_2p_rotated[2],V3_1pirot;
     bool pi1_stat=true;
@@ -182,9 +181,9 @@ void Subtraction::prot2_pi1_rot_func(TVector3 V3_2prot_corr[2],TVector3 V3_2prot
   }
 
 
-void Subtraction::prot2_pi2_rot_func(TVector3 V3_2prot_corr[2],TVector3 V3_2prot_uncorr[2],TVector3 V3_2pi[2], TLorentzVector V4_2prot_corr[2], TLorentzVector V4_2pi[2], int q_pi[2], TLorentzVector V4_el, double Ecal[2][2], double p_miss_perp[2][2], double P_tot_2p[2][2])
+void Subtraction::prot2_pi2_rot_func(TVector3 V3_2prot_corr[2],TVector3 V3_2prot_uncorr[2],TVector3 V3_2pi[2], TLorentzVector V4_2prot_corr[2], TLorentzVector V4_2pi[2], int q_pi[2], TLorentzVector V4_el, double Ecal[2][2], double p_miss_perp[2][2], double P_tot_2p[2][2], int Selection)
 {
-
+  //Let int selection decide which way we are going to subtract -> 0 all subs, 1- 1step, 2 - 2step
     const int N_2prot=2,N_2pi=2;
     TVector3 V3_2p_rotated[N_2prot],V3_2pirot[N_2pi];
     bool pi2_stat[N_2pi]={true};
@@ -229,40 +228,51 @@ void Subtraction::prot2_pi2_rot_func(TVector3 V3_2prot_corr[2],TVector3 V3_2prot
         double P_tot[2] = {0};
         double Ecal2[2] = {0};
         double p_miss_perp2[2] = {0};
+        //Energy calculation is const between all subtraction types
+        for(int i=0; i < 2; i++) //Helps avoid segmentation fault error :)
+        {
+          prot1_pi2_rot_func(V3_2prot_uncorr[i], V3_2pi, V4_2prot_corr[i], V4_2pi, q_pi, V4_el, Ecal2, p_miss_perp2, P_tot);
+          Ecal[i][0] = Ecal2[0];
+          Ecal[i][1] = Ecal2[1];
+          p_miss_perp[i][0] = p_miss_perp2[0];
+          p_miss_perp[i][1] = p_miss_perp2[1];
+        }
+
+      if(selection != 1) //This is to get the 2step Subtraction
+      {
+        for(int i=0;i<2;i++)
+        {
+          //Changed below to reflect the rotation function being performed. From N_2p_1pi -> N_1p_2pi
+          prob2p2pito1p1pi[i][0]= -(N_1p_2pi[i]/N_all)*P_tot[0]; //-> Already made negative when P_Tot is calc
+          prob2p2pito1p1pi[i][1]= -(N_1p_2pi[i]/N_all)*P_tot[1];
+        }
+      //---------------------------------------------------2p2pi->2p1pi->1p1pi-------------------------------------------------------
+        P_tot[0] = P_tot[1] = 0;
+        //Loop twice because we can get this two ways
+        for(int i=0;i<2;i++)
+        {
+          prot2_pi1_rot_func(V3_2prot_corr, V3_2prot_uncorr, V3_2pi[i], V4_2prot_corr, V4_2pi[i], q_pi[i], V4_el, Ecal2, p_miss_perp2, P_tot);
+          //Below is redundant
+          //Ecal[0][i] = Ecal2[0];
+          //Ecal[1][i] = Ecal2[1];
+          p_miss_perp[0][i] = p_miss_perp2[0];
+          p_miss_perp[1][i] = p_miss_perp2[1];
+          prob2p2pito1p1pi[0][i] = -(N_2p_1pi[i]/N_all)*P_tot[0]; //Already made negative in 2p_1pi calc
+          prob2p2pito1p1pi[1][i] = -(N_2p_1pi[i]/N_all)*P_tot[1];
+          //Positive bc it is doubly subtracted ^
+        }
+  }
+    //----------------------------------------------------2p2pi->1p1pi---------------------------------------------------------
+    if(selection < 2) //We want to get just the 1step sub
+    {
       for(int i=0;i<2;i++)
       {
-        prot1_pi2_rot_func(V3_2prot_uncorr[i], V3_2pi, V4_2prot_corr[i], V4_2pi, q_pi, V4_el, Ecal2, p_miss_perp2, P_tot);
-        Ecal[i][0] = Ecal2[0];
-        Ecal[i][1] = Ecal2[1];
-        p_miss_perp[i][0] = p_miss_perp2[0];
-        p_miss_perp[i][1] = p_miss_perp2[1];
-        //Changed below to reflect the rotation function being performed. From N_2p_1pi -> N_1p_2pi
-        prob2p2pito1p1pi[i][0]= -(N_1p_2pi[i]/N_all)*P_tot[0]; //-> Already made negative when P_Tot is calc
-        prob2p2pito1p1pi[i][1]= -(N_1p_2pi[i]/N_all)*P_tot[1];
+          for(int j=0;j<2;j++)
+          {
+            prob2p2pito1p1pi[i][j] += -N_1p_1pi[i][j]/N_all; //probability = 2stepWeight - 1stepWeight (prob = prob - N1...)
+            P_tot_2p[i][j] = prob2p2pito1p1pi[i][j];
+          }
       }
-      //---------------------------------------------------2p2pi->2p1pi->1p1pi-------------------------------------------------------
-      P_tot[0] = P_tot[1] = 0;
-      //Loop twice because we can get this two ways
-    for(int i=0;i<2;i++)
-    {
-      prot2_pi1_rot_func(V3_2prot_corr, V3_2prot_uncorr, V3_2pi[i], V4_2prot_corr, V4_2pi[i], q_pi[i], V4_el, Ecal2, p_miss_perp2, P_tot);
-      //Below is redundant
-      //Ecal[0][i] = Ecal2[0];
-      //Ecal[1][i] = Ecal2[1];
-      p_miss_perp[0][i] = p_miss_perp2[0];
-      p_miss_perp[1][i] = p_miss_perp2[1];
-      prob2p2pito1p1pi[0][i] = -(N_2p_1pi[i]/N_all)*P_tot[0]; //Already made negative in 2p_1pi calc
-      prob2p2pito1p1pi[1][i] = -(N_2p_1pi[i]/N_all)*P_tot[1];
-      //Positive bc it is doubly subtracted ^
-    }
-    //----------------------------------------------------2p2pi->1p1pi---------------------------------------------------------
-    for(int i=0;i<2;i++)
-    {
-        for(int j=0;j<2;j++)
-        {
-          prob2p2pito1p1pi[i][j] += -N_1p_1pi[i][j]/N_all; //probability = 2stepWeight - 1stepWeight (prob = prob - N1...)
-          P_tot_2p[i][j] = prob2p2pito1p1pi[i][j];
-        }
     }
    // P_tot_2p = prob2p2pito1p1pi;
   }
@@ -274,7 +284,7 @@ void Subtraction::prot2_pi2_rot_func(TVector3 V3_2prot_corr[2],TVector3 V3_2prot
 
 }
 
-void Subtraction::prot3_pi1_rot_func(TVector3 V3_3prot_corr[3],TVector3 V3_3prot_uncorr[3],TVector3 V3_pi, TLorentzVector V4_3prot_corr[3], TLorentzVector V4_pi, int q_pi, TLorentzVector V4_el, double Ecal[3], double p_miss_perp[3], double P_tot_3p[3])
+void Subtraction::prot3_pi1_rot_func(TVector3 V3_3prot_corr[3],TVector3 V3_3prot_uncorr[3],TVector3 V3_pi, TLorentzVector V4_3prot_corr[3], TLorentzVector V4_pi, int q_pi, TLorentzVector V4_el, double Ecal[3], double p_miss_perp[3], double P_tot_3p[3], int Selection)
 {
     const int N_3prot=3;
     TVector3 V3_3p_rotated[N_3prot],V3_pirot;
@@ -292,11 +302,11 @@ void Subtraction::prot3_pi1_rot_func(TVector3 V3_3prot_corr[3],TVector3 V3_3prot
     double P_3p1pito2p1pi[N_3prot]={0};
     double P_2p1pito1p1pi[2]={0},Ptot=0;
 
-       for(int g=0; g<N_tot; g++){
-
+    for(int g=0; g<N_tot; g++)
+    {
        rot_angle=gRandom->Uniform(0,2*TMath::Pi());
-       for(int k=0; k<N_3prot; k++){
-
+       for(int k=0; k<N_3prot; k++)
+       {
          V3_3p_rotated[k]=V3_3prot_uncorr[k];
          V3_3p_rotated[k].Rotate(rot_angle,V3q);
        }
@@ -312,52 +322,61 @@ void Subtraction::prot3_pi1_rot_func(TVector3 V3_3prot_corr[3],TVector3 V3_3prot
        if(PFiducialCut(fbeam_en, V3_3p_rotated[0]) && !PFiducialCut(fbeam_en, V3_3p_rotated[1]) && PFiducialCut(fbeam_en, V3_3p_rotated[2])  && pi_stat)  N_2p1pi[1]=N_2p1pi[1]+1;
        if(!PFiducialCut(fbeam_en, V3_3p_rotated[0]) && PFiducialCut(fbeam_en, V3_3p_rotated[1]) && PFiducialCut(fbeam_en, V3_3p_rotated[2])  && pi_stat)  N_2p1pi[2]=N_2p1pi[2]+1;
        if(PFiducialCut(fbeam_en, V3_3p_rotated[0]) && PFiducialCut(fbeam_en, V3_3p_rotated[1]) && PFiducialCut(fbeam_en, V3_3p_rotated[2])  && pi_stat)  N_all=N_all+1;
-     }
+    }
     if(N_all!=0)
     {
-      for(int z=0;z<N_3prot;z++){
-
-   //---------------------------------- 3p 1pi ->1p 1pi   ----------------------------------------------
+      for(int z=0;z<N_3prot;z++)
+      {
+        //---------------------------------- 3p 1pi ->1p 1pi   ----------------------------------------------
+        //- - - - - If the selection is 0 or 1 then do include the 1-step subtraction probability
+        if(Selection<2)
+        {
           P_3p1pito1p1pi[z] = -(N_1p1pi[z]/N_all);
-
-   //---------------------------------- 3p 1pi ->2p 1pi   ----------------------------------------------
-   TVector3 V3_prot_corr[2];
-   TVector3 V3_prot_uncorr[2];
-   TLorentzVector V4_prot_corr[2];
-   double Ecal2[2] = {0};
-   double p_miss_perp2[2] = {0};
-   for(int i=0;i<N_3prot;i++){       //looping through 2p combinations  out of 3p
-     if(z!=i && z<i)
-     {               // 3 pairs of 2proton combinations with z, i indexes(z<i)
-          P_2p1pito1p1pi[0]=P_2p1pito1p1pi[1]=0;
-          Ptot=0;
-          V3_prot_corr[0] = V3_3prot_corr[z];
-          V3_prot_corr[1] = V3_3prot_corr[i];
-          V3_prot_uncorr[0] = V3_3prot_uncorr[z];
-          V3_prot_uncorr[1] = V3_3prot_uncorr[i];
-          V4_prot_corr[0] = V4_3prot_corr[z];
-          V4_prot_corr[1] = V4_3prot_corr[z];
-          prot2_pi1_rot_func(V3_prot_corr,V3_prot_uncorr,V3_pi,V4_prot_corr, V4_pi, q_pi, V4_el, Ecal2, p_miss_perp2, P_2p1pito1p1pi);
-          Ecal[z] = Ecal2[0];
-          Ecal[i] = Ecal2[1];
-          p_miss_perp[z] = p_miss_perp2[0];
-          p_miss_perp[i] = p_miss_perp2[1];
-          P_3p1pito2p1pi[z] += -(N_2p1pi[count]/N_all)*(P_2p1pito1p1pi[0]); //Probability will automatically be + in case that it is 2p2pi->1p1pi
-          P_3p1pito2p1pi[i] += -(N_2p1pi[count]/N_all)*(P_2p1pito1p1pi[1]);
-
-  	      count=count+1;
-  		  	}
-  		  }
+        }
+       //---------------------------------- 3p 1pi ->2p 1pi   ----------------------------------------------
+       TVector3 V3_prot_corr[2];
+       TVector3 V3_prot_uncorr[2];
+       TLorentzVector V4_prot_corr[2];
+       double Ecal2[2] = {0};
+       double p_miss_perp2[2] = {0};
+       for(int i=0;i<N_3prot;i++)
+       {
+         //looping through 2p combinations  out of 3p
+         if(z!=i && z<i)
+         {
+              // 3 pairs of 2proton combinations with z, i indexes(z<i)
+              P_2p1pito1p1pi[0]=P_2p1pito1p1pi[1]=0;
+              Ptot=0;
+              V3_prot_corr[0] = V3_3prot_corr[z];
+              V3_prot_corr[1] = V3_3prot_corr[i];
+              V3_prot_uncorr[0] = V3_3prot_uncorr[z];
+              V3_prot_uncorr[1] = V3_3prot_uncorr[i];
+              V4_prot_corr[0] = V4_3prot_corr[z];
+              V4_prot_corr[1] = V4_3prot_corr[z];
+              prot2_pi1_rot_func(V3_prot_corr,V3_prot_uncorr,V3_pi,V4_prot_corr, V4_pi, q_pi, V4_el, Ecal2, p_miss_perp2, P_2p1pito1p1pi);
+              Ecal[z] = Ecal2[0];
+              Ecal[i] = Ecal2[1];
+              p_miss_perp[z] = p_miss_perp2[0];
+              p_miss_perp[i] = p_miss_perp2[1];
+              //- - - - - If the selection is not 1, then perform the 2-step subtraction probability calculation
+              if(Selection != 1)
+              {
+                P_3p1pito2p1pi[z] += -(N_2p1pi[count]/N_all)*(P_2p1pito1p1pi[0]); //Probability will automatically be + in case that it is 2p2pi->1p1pi
+                P_3p1pito2p1pi[i] += -(N_2p1pi[count]/N_all)*(P_2p1pito1p1pi[1]);
+              }
+      	      count=count+1;
+      		 }
+      		}
       }//looping through 3p
       P_tot_3p[0]=P_3p1pito2p1pi[0]+P_3p1pito1p1pi[0];
       P_tot_3p[1]=P_3p1pito2p1pi[1]+P_3p1pito1p1pi[1];
       P_tot_3p[2]=P_3p1pito2p1pi[2]+P_3p1pito1p1pi[2];
 
-      }
-      else
-      {
-        P_tot_3p[0]= P_tot_3p[1]=P_tot_3p[2]=0;
-      }
+    }
+    else
+    {
+      P_tot_3p[0]= P_tot_3p[1]=P_tot_3p[2]=0;
+    }
 
   }
 

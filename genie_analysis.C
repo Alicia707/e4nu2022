@@ -565,6 +565,18 @@ void genie_analysis::Loop(Int_t choice) {
 	TH1F *h1_E_tot_2p1pi_1p1pi_pimi	= new TH1F("h1_E_tot_2p1pi_1p1pi_pimi","",n_bins,x_values);
 	TH1F *h1_E_rec_2p1pi_1p1pi_pipl	= new TH1F("h1_E_rec_2p1pi_1p1pi_pipl","",n_bins,x_values);
 	TH1F *h1_E_rec_2p1pi_1p1pi_pimi= new TH1F("h1_E_rec_2p1pi_1p1pi_pimi","",n_bins,x_values);
+
+	//2step and 1step histograms for 2p2pi analysis
+	TH1F *h1_E_tot_2p2pi_pipl_1step = new TH1F("h1_E_tot_2p2pi_pipl_1step","",n_bins, x_values);
+	TH1F *h1_E_tot_2p2pi_pipl_2step = new TH1F("h1_E_tot_2p2pi_pipl_2step","",n_bins, x_values);
+	TH1F *h1_E_tot_2p2pi_pimi_1step = new TH1F("h1_E_tot_2p2pi_pimi_1step","",n_bins, x_values);
+	TH1F *h1_E_tot_2p2pi_pimi_2step = new TH1F("h1_E_tot_2p2pi_pimi_2step","",n_bins, x_values);
+	//2step and 1step histograms for 3p1pi analysis
+	TH1F *h1_E_tot_3p1pi_pipl_1step = new TH1F("h1_E_tot_3p1pi_pipl_1step","",n_bins, x_values);
+	TH1F *h1_E_tot_3p1pi_pipl_2step = new TH1F("h1_E_tot_3p1pi_pipl_2step","",n_bins, x_values);
+	TH1F *h1_E_tot_3p1pi_pimi_1step = new TH1F("h1_E_tot_3p1pi_pimi_1step","",n_bins, x_values);
+	TH1F *h1_E_tot_3p1pi_pimi_2step = new TH1F("h1_E_tot_3p1pi_pimi_2step","",n_bins, x_values);
+
 	//
 	//TH1F *h1_E_tot_1p2pi_pipl_const_bin	= new TH1F("h1_E_tot_1p2pi_pipl_const_bin","",54,0,8.);
 	//TH1F *h1_E_tot_1p2pi_pimi_const_bin	= new TH1F("h1_E_tot_1p2pi_pimi_const_bin","",54,0,8.);
@@ -1761,8 +1773,14 @@ void genie_analysis::Loop(Int_t choice) {
 				double Ecal2p2pi[2][2];
 				double p_miss_perp2p2pi[2][2];
 				double P_tot_2p[2][2];
+				double P_tot_2p_1step[2][2]; //for 1step subtraction of 2p2pi
+				double P_tot_2p_2step[2][2]; //for 2step subtraction of 2p2pi
 
-				rotation->prot2_pi2_rot_func(V3_2prot_corr,V3_2prot_uncorr,V3_2pi_corr,V4_2prot_corr, V4_2pi_corr, charge_pi,V4_el, Ecal2p2pi, p_miss_perp2p2pi, P_tot_2p);
+				//Allows me to select how many steps of subtraction to do
+				int selection[3] = {0, 1, 2};
+				rotation->prot2_pi2_rot_func(V3_2prot_corr,V3_2prot_uncorr,V3_2pi_corr,V4_2prot_corr, V4_2pi_corr, charge_pi,V4_el, Ecal2p2pi, p_miss_perp2p2pi, P_tot_2p, selection[0]);
+				rotation->prot2_pi2_rot_func(V3_2prot_corr,V3_2prot_uncorr,V3_2pi_corr,V4_2prot_corr, V4_2pi_corr, charge_pi,V4_el, Ecal2p2pi, p_miss_perp2p2pi, P_tot_2p_1step, selection[1]);
+				rotation->prot2_pi2_rot_func(V3_2prot_corr,V3_2prot_uncorr,V3_2pi_corr,V4_2prot_corr, V4_2pi_corr, charge_pi,V4_el, Ecal2p2pi, p_miss_perp2p2pi, P_tot_2p_2step, selection[2]);
 				double weight_pions = pion_acc_ratio[0] * pion_acc_ratio[1];
 				//double histoweight = weight_pions * weight_protons * e_acc_ratio * wght/Mott_cross_sec;
 				//Is this correct in the following loop? F.H. 09/01/19
@@ -1778,6 +1796,8 @@ void genie_analysis::Loop(Int_t choice) {
 							h1_E_cal_1p1pi_pipl_tot->Fill(Ecal2p2pi[z][j],histoweight);
 					//---------------------------------- 2p 2pi ->1p 0pi   ----------------------------------------------
 							h1_E_tot_2p2pi_pipl->Fill(Ecal2p2pi[z][j], P_tot_2p[z][j]*histoweight);
+							h1_E_tot_2p2pi_pipl_1step->Fill(Ecal2p2pi[z][j], P_tot_2p_1step[z][j]*histoweight);
+							h1_E_tot_2p2pi_pipl_2step->Fill(Ecal2p2pi[z][j], P_tot_2p_2step[z][j]*histoweight);
 						//	h1_E_tot_2p2pi_pipl_const_bin->Fill(Ecal2p2pi[z][j], P_tot_2p[z][j]*histoweight);
 							h1_E_rec_2p2pi_pipl->Fill(E_rec,P_tot_2p[z][j]*histoweight);
 							h2_Erec_pperp_2p2pi_pipl->Fill(p_miss_perp2p2pi[z][j],E_rec,P_tot_2p[z][j]*histoweight);
@@ -1849,6 +1869,8 @@ void genie_analysis::Loop(Int_t choice) {
 					h1_E_cal_1p1pi_pimi_tot->Fill(Ecal2p2pi[z][j], histoweight);
 					//---------------------------------- 2p 2pi ->1p 0pi   ----------------------------------------------
 					h1_E_tot_2p2pi_pimi->Fill(Ecal2p2pi[z][j], P_tot_2p[z][j]*histoweight);
+					h1_E_tot_2p2pi_pimi_1step->Fill(Ecal2p2pi[z][j], P_tot_2p_1step[z][j]*histoweight);
+					h1_E_tot_2p2pi_pimi_2step->Fill(Ecal_2p2pi[z][j], P_tot_2p_2step[z][j]*histoweight);
 					//h1_E_tot_2p2pi_pimi_const_bin->Fill(Ecal2p2pi[z][j], P_tot_2p[z][j]*histoweight);
 					h1_E_rec_2p2pi_pimi->Fill(E_rec,P_tot_2p[z][j]*histoweight);
 					h2_Erec_pperp_2p2pi_pimi->Fill(p_miss_perp2p2pi[z][j],E_rec,P_tot_2p[z][j]*histoweight);
@@ -2038,8 +2060,12 @@ void genie_analysis::Loop(Int_t choice) {
 					else { std::cout << "WARNING: 3proton and 1 Pion loop. pion_acc_ratio is still 0. Continue with next event " << std::endl;	continue; }
 
 				}
-
-				rotation->prot3_pi1_rot_func(V3_prot_corr,V3_prot_uncorr, V3_pi_corr, V4_p_corr, V4_pi_corr, charge_pi[0], V4_el, Ecal_3p1pi, p_miss_perp_3p1pi, P_tot_3p);
+				int selection[3] = {0, 1, 2};
+				Double P_tot_3p_1step[3] = {0.0};
+				Double P_tot_3p_2step[3] = {0.0};
+				rotation->prot3_pi1_rot_func(V3_prot_corr,V3_prot_uncorr, V3_pi_corr, V4_p_corr, V4_pi_corr, charge_pi[0], V4_el, Ecal_3p1pi, p_miss_perp_3p1pi, P_tot_3p, selection);
+				rotation->prot3_pi1_rot_func(V3_prot_corr,V3_prot_uncorr, V3_pi_corr, V4_p_corr, V4_pi_corr, charge_pi[0], V4_el, Ecal_3p1pi, p_miss_perp_3p1pi, P_tot_3p_1step, selection);
+				rotation->prot3_pi1_rot_func(V3_prot_corr,V3_prot_uncorr, V3_pi_corr, V4_p_corr, V4_pi_corr, charge_pi[0], V4_el, Ecal_3p1pi, p_miss_perp_3p1pi, P_tot_3p_2step, selection);
 				//for CLAS data is histoweight = 1/Mott_cross_sec
 				//double histoweight = pion_acc_ratio * weight_protons * e_acc_ratio * wght/Mott_cross_sec;
 				//Weight for 3protons, 1 pion, 1 electron, GENIE weight and Mott cross section
@@ -2051,6 +2077,8 @@ void genie_analysis::Loop(Int_t choice) {
 						h1_E_cal_1p1pi_pipl_tot->Fill(E_cal[j],histoweight);
 					  C3p1piPIPL++;
 						h1_E_tot_3p1pi_pipl->Fill(E_cal[j], P_tot_3p[j]*histoweight);
+						h1_E_tot_3p1pi_pipl_1step->Fill(E_cal[j], P_tot_3p_1step[j]*histoweight);
+						h1_E_tot_3p1pi_pipl_2step->Fill(E_cal[j], P_tot_3p_2step[j]*histoweight);
 					//	h1_E_tot_3p1pi_pipl_const_bin->Fill(E_cal[j], P_tot_3p[j]*histoweight);
 						h1_E_rec_3p1pi_pipl->Fill(E_rec,P_tot_3p[j]*histoweight);
 						h2_Erec_pperp_3p1pi_pipl->Fill(p_miss_perp[j],E_rec,P_tot_3p[j]*histoweight);
@@ -2098,7 +2126,8 @@ void genie_analysis::Loop(Int_t choice) {
 						Nu_BreakDown_pipl[0]->Fill(nu,LocalWeight);
 						Pe_BreakDown_pipl[0]->Fill(V4_el.Rho(),LocalWeight);
 
-						if (choice == 1) {
+						if (choice == 1)
+						{
 							ECal_BreakDown_pipl[Interaction]->Fill(E_cal[j],LocalWeight);
 							Eres_BreakDown_pipl[Interaction]->Fill(E_rec,LocalWeight);
 							Pmiss_BreakDown_pipl[Interaction]->Fill(p_miss_perp[j],LocalWeight);
@@ -2124,6 +2153,8 @@ void genie_analysis::Loop(Int_t choice) {
 					  C3p1piPIMI++;
 						h1_E_cal_1p1pi_pimi_tot->Fill(E_cal[j], histoweight);
 						h1_E_tot_3p1pi_pimi->Fill(E_cal[j], P_tot_3p[j]*histoweight);
+						h1_E_tot_3p1pi_pimi_1step->Fill(E_cal[j], P_tot_3p_1step[j]*histoweight);
+						h1_E_tot_3p1pi_pimi_2step->Fill(E_cal[j], P_tot_3p_2step[j]*histoweight);
 						//h1_E_tot_3p1pi_pimi_const_bin->Fill(E_cal[j], P_tot_3p[j]*histoweight);
 						h1_E_rec_3p1pi_pimi->Fill(E_rec,P_tot_3p[j]*histoweight);
 						h2_Erec_pperp_3p1pi_pimi->Fill(p_miss_perp[j],E_rec,P_tot_3p[j]*histoweight);
