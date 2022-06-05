@@ -49,6 +49,17 @@ int main(int argc, char* argv[]){
   TH1F *h1_E_cal_1p1pi_pipl_tot   = (TH1F*)file_in->Get("h1_E_cal_1p1pi_pipl_tot");
   TH1F *h1_E_cal_1p1pi_pipl_ONLY  = (TH1F*)file_in->Get("h1_E_cal_1p1pi_pipl_ONLY");
 
+  //2ndprot and 2ndpi not detected histos
+  TH1F *h1_E_cal_1p1pi_pimi_2piNotDetected =   (TH1F*)file_in->Get("h1_E_cal_1p1pi_pimi_2piNotDetected");
+	TH1F *h1_E_cal_1p1pi_pimi_2pNotDetected =    (TH1F*)file_in->Get("h1_E_cal_1p1pi_pimi_2pNotDetected");
+	TH1F *h1_E_cal_1p1pi_pimi_2p2piNotDetected = (TH1F*)file_in->Get("h1_E_cal_1p1pi_pimi_2p2piNotDetected");
+	TH1F *h1_E_cal_1p1pi_pipl_2piNotDetected =   (TH1F*)file_in->Get("h1_E_cal_1p1pi_pipl_2piNotDetected");
+	TH1F *h1_E_cal_1p1pi_pipl_2pNotDetected =    (TH1F*)file_in->Get("h1_E_cal_1p1pi_pipl_2pNotDetected");
+	TH1F *h1_E_cal_1p1pi_pipl_2p2piNotDetected = (TH1F*)file_in->Get("h1_E_cal_1p1pi_pipl_2p2piNotDetected");
+
+  TH1F* h1_E_cal_1p1pi_pimi_TRUE     = (TH1F*) file_in-> Get("h1_E_cal_1p1pi_pimi_TRUE");
+  TH1F* h1_E_cal_1p1pi_pipl_TRUE     = (TH1F*) file_in-> Get("h1_E_cal_1p1pi_pipl_TRUE");
+
   //variable to be used later ;)
   int min = 0;
 
@@ -70,6 +81,14 @@ int main(int argc, char* argv[]){
   divideByBinWidth(N_E_bins, h1_E_cal_1p1pi_pimi_ONLY);
   divideByBinWidth(N_E_bins, h1_E_cal_1p1pi_pipl_tot);
   divideByBinWidth(N_E_bins, h1_E_cal_1p1pi_pipl_ONLY);
+  divideByBinWidth(N_E_bins,h1_E_cal_1p1pi_pimi_2piNotDetected);
+  divideByBinWidth(N_E_bins, h1_E_cal_1p1pi_pimi_2pNotDetected);
+  divideByBinWidth(N_E_bins, h1_E_cal_1p1pi_pimi_2p2piNotDetected);
+  divideByBinWidth(N_E_bins, h1_E_cal_1p1pi_pipl_2piNotDetected);
+  divideByBinWidth(N_E_bins, h1_E_cal_1p1pi_pipl_2pNotDetected);
+  divideByBinWidth(N_E_bins, h1_E_cal_1p1pi_pipl_2p2piNotDetected);
+  divideByBinWidth(N_E_bins, h1_E_cal_1p1pi_pimi_TRUE);
+  divideByBinWidth(N_E_bins, h1_E_cal_1p1pi_pipl_TRUE);
 
   /*reflectOverX(N_E_bins, h1_E_tot_2p1pi_1p1pi_pimi);
   reflectOverX(N_E_bins, h1_E_tot_1p2pi_pimi);
@@ -204,7 +223,117 @@ int main(int argc, char* argv[]){
   //Create png
   c4->Print("piplSubtraction_4GeV.png");
 
+  TCanvas *c5 = new TCanvas("c5","",567,370);
+  h1_E_cal_1p1pi_pimi_tot->SetMaximum(c1Max*1.05);
+  h1_E_cal_1p1pi_pimi_tot->SetAxisRange(0,5.5,"X");
+  h1_E_cal_1p1pi_pimi_tot->SetLineColor(1);
+  h1_E_cal_1p1pi_pimi_ONLY->SetLineColor(2);
+  h1_E_cal_1p1pi_pimi_ONLY->SetLineStyle(1);
+  h1_E_cal_1p1pi_pimi_tot->GetXaxis()->SetTitle("E_{cal}");
+  h1_E_cal_1p1pi_pimi_tot->GetXaxis()->SetTitleSize(0.05);
+  h1_E_cal_1p1pi_pimi_tot->GetXaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pimi_tot->GetYaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pimi_tot->GetXaxis()->SetTitleOffset(0.7);
+  h1_E_cal_1p1pi_pimi_tot->Draw("HIST");
+  h1_E_cal_1p1pi_pimi_ONLY->Draw("HIST SAME");
+  h1_E_cal_pimi_sub->Draw("HIST SAME");
+  h1_E_cal_1p1pi_pimi_2pNotDetected->Draw("HIST SAME");
+  c5->Print("2pPIMI_notDetected.png");
 
+  TCanvas *c6 = new TCanvas("c6","",567,370);
+  h1_E_cal_1p1pi_pimi_tot->SetAxisRange(0,5.5,"X");
+  h1_E_cal_1p1pi_pimi_tot->SetLineColor(1);
+  h1_E_cal_1p1pi_pimi_ONLY->SetLineColor(2);
+  h1_E_cal_1p1pi_pimi_tot->GetXaxis()->SetTitle("E_{cal}");
+  h1_E_cal_1p1pi_pimi_tot->GetXaxis()->SetTitleSize(0.05);
+  h1_E_cal_1p1pi_pimi_tot->GetXaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pimi_tot->GetYaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pimi_tot->GetXaxis()->SetTitleOffset(0.7);
+  h1_E_cal_1p1pi_pimi_tot->Draw("HIST");
+  h1_E_cal_1p1pi_pimi_ONLY->Draw("HIST SAME");
+  h1_E_cal_pimi_sub->Draw("HIST SAME");
+  h1_E_cal_1p1pi_pimi_2piNotDetected->Draw("HIST SAME");
+  c6->Print("2piPIMI_notDetected.png");
+
+  TCanvas *c7 = new TCanvas("c7","",567,370);
+  h1_E_cal_1p1pi_pimi_tot->SetAxisRange(0,5.5,"X");
+  h1_E_cal_1p1pi_pimi_tot->SetLineColor(1);
+  h1_E_cal_1p1pi_pimi_ONLY->SetLineColor(2);
+  h1_E_cal_1p1pi_pimi_tot->GetXaxis()->SetTitle("E_{cal}");
+  h1_E_cal_1p1pi_pimi_tot->GetXaxis()->SetTitleSize(0.05);
+  h1_E_cal_1p1pi_pimi_tot->GetXaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pimi_tot->GetYaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pimi_tot->GetXaxis()->SetTitleOffset(0.7);
+  h1_E_cal_1p1pi_pimi_tot->Draw("HIST");
+  h1_E_cal_1p1pi_pimi_ONLY->Draw("HIST SAME");
+  h1_E_cal_pimi_sub->Draw("HIST SAME");
+  h1_E_cal_1p1pi_pimi_2p2piNotDetected->Draw("HIST SAME");
+  c7->Print("2p2piPIMI_notDetected.png");
+
+  TCanvas *c8 = new TCanvas("c8","",567,370);
+  h1_E_cal_1p1pi_pipl_tot->SetAxisRange(0,5.5,"X");
+  h1_E_cal_1p1pi_pipl_tot->SetMaximum(c2Max*1.05);
+  h1_E_cal_1p1pi_pipl_tot->SetLineColor(1);
+  h1_E_cal_1p1pi_pipl_ONLY->SetLineColor(2);
+  h1_E_cal_1p1pi_pipl_tot->GetXaxis()->SetTitle("E_{cal}");
+  h1_E_cal_1p1pi_pipl_tot->GetXaxis()->SetTitleSize(0.05);
+  h1_E_cal_1p1pi_pipl_tot->GetXaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pipl_tot->GetYaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pipl_tot->GetXaxis()->SetTitleOffset(0.7);
+  h1_E_cal_1p1pi_pipl_tot->Draw("HIST");
+  h1_E_cal_1p1pi_pipl_ONLY->Draw("HIST SAME");
+  h1_E_cal_pipl_sub->Draw("HIST SAME");
+  h1_E_cal_1p1pi_pipl_2pNotDetected->Draw("HIST SAME");
+  c8->Print("2ppipl_notDetected.png");
+
+  TCanvas *c9 = new TCanvas("c9","",567,370);
+  h1_E_cal_1p1pi_pipl_tot->SetAxisRange(0,5.5,"X");
+  h1_E_cal_1p1pi_pipl_tot->SetLineColor(1);
+  h1_E_cal_1p1pi_pipl_ONLY->SetLineColor(2);
+  h1_E_cal_1p1pi_pipl_tot->GetXaxis()->SetTitle("E_{cal}");
+  h1_E_cal_1p1pi_pipl_tot->GetXaxis()->SetTitleSize(0.05);
+  h1_E_cal_1p1pi_pipl_tot->GetXaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pipl_tot->GetYaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pipl_tot->GetXaxis()->SetTitleOffset(0.7);
+  h1_E_cal_1p1pi_pipl_tot->Draw("HIST");
+  h1_E_cal_1p1pi_pipl_ONLY->Draw("HIST SAME");
+  h1_E_cal_pipl_sub->Draw("HIST SAME");
+  h1_E_cal_1p1pi_pipl_2piNotDetected->Draw("HIST SAME");
+  c9->Print("2pipipl_notDetected.png");
+
+  TCanvas *c10 = new TCanvas("c10","",567,370);
+  h1_E_cal_1p1pi_pipl_tot->SetAxisRange(0,5.5,"X");
+  h1_E_cal_1p1pi_pipl_tot->SetLineColor(1);
+  h1_E_cal_1p1pi_pipl_ONLY->SetLineColor(2);
+  h1_E_cal_1p1pi_pipl_tot->GetXaxis()->SetTitle("E_{cal}");
+  h1_E_cal_1p1pi_pipl_tot->GetXaxis()->SetTitleSize(0.05);
+  h1_E_cal_1p1pi_pipl_tot->GetXaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pipl_tot->GetYaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pipl_tot->GetXaxis()->SetTitleOffset(0.7);
+  h1_E_cal_1p1pi_pipl_tot->Draw("HIST");
+  h1_E_cal_1p1pi_pipl_ONLY->Draw("HIST SAME");
+  h1_E_cal_pipl_sub->Draw("HIST SAME");
+  h1_E_cal_1p1pi_pipl_2p2piNotDetected->Draw("HIST SAME");
+  c10->Print("2p2pipipl_notDetected.png");
+
+  TCanvas *c11 = new TCanvas("c11","",567,370);
+  h1_E_cal_1p1pi_pimi_TRUE->GetXaxis()->SetTitle("E_{cal}");
+  h1_E_cal_1p1pi_pimi_TRUE->GetXaxis()->SetTitleSize(0.05);
+  h1_E_cal_1p1pi_pimi_TRUE->GetXaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pimi_TRUE->GetYaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pimi_TRUE->GetXaxis()->SetTitleOffset(0.7);
+  h1_E_cal_1p1pi_pimi_TRUE->Draw("HIST");
+  c11->Print("1p1pi_pimi_TRUE.png");
+
+  TCanvas *c12 = new TCanvas("c12","",567,370);
+  h1_E_cal_1p1pi_pipl_TRUE->GetXaxis()->SetTitle("E_{cal}");
+  h1_E_cal_1p1pi_pipl_TRUE->GetXaxis()->SetTitleSize(0.05);
+  h1_E_cal_1p1pi_pipl_TRUE->GetXaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pipl_TRUE->GetYaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pipl_TRUE->GetXaxis()->SetTitleOffset(0.7);
+  h1_E_cal_1p1pi_pipl_TRUE->Draw("HIST");
+  c12->Print("1p1pi_pipl_TRUE.png");
+/*
   //Flip stuff over the x-axis such that we can see how much of etot the sub takes up
   reflectOverX(N_E_bins, h1_E_tot_2p1pi_1p1pi_pimi);
   reflectOverX(N_E_bins, h1_E_tot_1p2pi_pimi);
@@ -423,7 +552,7 @@ int main(int argc, char* argv[]){
   h1_E_tot_3p1pi_pipl->Draw("HIST SAME");
   h1_E_cal_pipl_sub->Draw("HIST SAME");
   //create png
-  c14->Print("3p1pi_pipl_Multiplicity_4GeV.png");
+  c14->Print("3p1pi_pipl_Multiplicity_4GeV.png");*/
 
   return 0;
 

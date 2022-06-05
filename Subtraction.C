@@ -238,7 +238,7 @@ void Subtraction::prot2_pi2_rot_func(TVector3 V3_2prot_corr[2],TVector3 V3_2prot
           p_miss_perp[i][1] = p_miss_perp2[1];
         }
 
-      if(selection != 1) //This is to get the 2step Subtraction
+      if(Selection != 1) //This is to get the 2step Subtraction
       {
         for(int i=0;i<2;i++)
         {
@@ -263,7 +263,7 @@ void Subtraction::prot2_pi2_rot_func(TVector3 V3_2prot_corr[2],TVector3 V3_2prot
         }
   }
     //----------------------------------------------------2p2pi->1p1pi---------------------------------------------------------
-    if(selection < 2) //We want to get just the 1step sub
+    if(Selection < 2) //We want to get just the 1step sub
     {
       for(int i=0;i<2;i++)
       {

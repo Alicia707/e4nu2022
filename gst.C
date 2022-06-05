@@ -109,8 +109,8 @@ void gst::Loop() {
 
 	// --------------------------------------------------------------
 
-//	for (Long64_t jentry=0; jentry<nentries;jentry++) {
-	for (Long64_t jentry=0; jentry<10000000;jentry++) {
+//	for (Long64_t jentry=0; jentry<10000000;jentry++) {
+	for (Long64_t jentry=0; jentry<nentries;jentry++) {
 
 		Long64_t ientry = LoadTree(jentry);
 		if (ientry < 0) break;
@@ -194,14 +194,12 @@ void gst::Loop() {
 
 
 		}
-
 		// --------------------------------------------------------------
-
                 // Chosen topology
 
                 if (
                     !(
-											(ProtonCounter == 1 & ChargedPionCounter == 1)
+												(ProtonCounter == 1 & ChargedPionCounter == 1)
 /*
                         (ProtonCounter == 1 && ChargedPionCounter == 0)
                      || (ProtonCounter == 1 && ChargedPionCounter == 1)
@@ -214,7 +212,6 @@ void gst::Loop() {
                      || (ProtonCounter == 3 && ChargedPionCounter == 1)*/
 
                     )
-
                 ) { continue; }
 
 					//Energy of prot -> Ef[ProtonIndexCounter[0]]
