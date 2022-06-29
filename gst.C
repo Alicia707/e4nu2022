@@ -134,11 +134,11 @@ void gst::Loop() {
 		// --------------------------------------------------------------
 
 		// Electron threshods for 4.4 GeV
-
+/*
 		if (El < 1.1) { continue; }
 		if (Q2 < 0.8) { continue; }
 		if (W > 2) { continue; }
-
+*/
 		TVector3 ElectronV3(pxl,pyl,pzl);
 		double E_el = El;
 		double el_momentum = ElectronV3.Mag();

@@ -787,7 +787,8 @@ void genie_analysis::Loop(Int_t choice) {
 	// ---------------------------------------------------------------------------------------------------------------
 
 	/** Beginning of Event Loop **/
-	for (Long64_t jentry=0; jentry<nentries;jentry++) {
+	for (Long64_t jentry=0; jentry<nentries;jentry++)
+	{
 //	for (Long64_t jentry=0; jentry<Nentries;jentry++) {
 
 		Long64_t ientry = LoadTree(jentry);
@@ -796,7 +797,7 @@ void genie_analysis::Loop(Int_t choice) {
 		int nb = GetEntry(jentry);
 		if (nb == 0) { std::cout <<"Event loop: 0 byte read for entry " << jentry << ". Indicate failure in reading the file" <<	std::endl;}
 
-		if (jentry%1000 == 0) {std::cout << jentry/1000 << " k " << std::setprecision(3) << double(jentry)/fChain->GetEntries()*100. << " %"<< std::endl;}
+		if (jentry%10000 == 0) {std::cout << jentry/1000 << " k " << std::setprecision(3) << double(jentry)/fChain->GetEntries()*100. << " %"<< std::endl;}
 
 		if( jentry%200000 == 0 )
 		{
@@ -842,7 +843,8 @@ void genie_analysis::Loop(Int_t choice) {
 		double el_momentum = V3_el.Mag();
 		double el_theta = V3_el.Theta();
 
-		if (choice == 1) { //smearing, fiducials and acceptance ratio for GENIE simulation data
+		if (choice == 1)
+		{ //smearing, fiducials and acceptance ratio for GENIE simulation data
 
 			//Smearing of Electron Vector from Simulation
 			SmearedPe = gRandom->Gaus(pl,reso_e*pl);
@@ -999,7 +1001,8 @@ void genie_analysis::Loop(Int_t choice) {
 		bool ec_radstat_n[20];
 
 		//Array initialize to -1 or false
-		for (int i = 0; i < 20; i++) {
+		for (int i = 0; i < 20; i++)
+		{
 			index_p[i] = -1;   index_pi[i] = -1;   index_pipl[i] = -1;   index_pimi[i] = -1;   ind_pi_phot[i] = -1;
 			ec_index_n[i] = -1;   ec_radstat_n[i] = false;
 			charge_pi[i] = -2; //default number should be not a possible real charge
@@ -1016,25 +1019,32 @@ void genie_analysis::Loop(Int_t choice) {
 
 			//counters for genie_truth analysis
 			//- - - - - Creation of Vectors - - - - -//
-			vector<int> PionIndexCounter;
-			vector<int> ProtonIndexCounter;
-			vector<int> piplIndexCounter;
-			vector<int> pimiIndexCounter;
-			int ProtonCounter = 0;
-			int ChargedPionCounter = 0;
-			int PiPlusCounter = 0;
-			int PiMinusCounter = 0;
-			int GammaCounter = 0;
+			vector<int> true_PionIndexCounter;
+			vector<int> true_ProtonIndexCounter;
+			vector<int> true_piplIndexCounter;
+			vector<int> true_pimiIndexCounter;
+			vector<int> true_ChargedPionIndexCounter;
+			int true_ProtonCounter = 0;
+			int true_ChargedPionCounter = 0;
+			int true_PiPlusCounter = 0;
+			int true_PiMinusCounter = 0;
+			int true_GammaCounter = 0;
 
 		//Loop for Hadrons
-		for (int i = 0; i < nf; i++) {
+		for (int i = 0; i < nf; i++)
+		{
 
 			// -----------------------------------------------------------------------------------------------------------------------------------------------
 
 			//Start of proton selection
 			if (pdgf[i] == 2212  && pf[i] > 0.3) {
 
-				if ( choice == 1) { //GENIE data
+				if ( choice == 1)
+				{ //GENIE data
+
+					//genie_truth analysis
+					true_ProtonCounter++;
+					true_ProtonIndexCounter.push_back(i);
 
 					//Smearing of proton
 					double temp_smear_P = gRandom->Gaus(pf[i],reso_p*pf[i]);
@@ -1050,9 +1060,6 @@ void genie_analysis::Loop(Int_t choice) {
 					ProtonID.push_back(i);
 					Smeared_Pp[num_p - 1] = temp_smear_P;
 					Smeared_Ep[num_p - 1] = temp_smear_E;
-
-					ProtonCounter++;
-					ProtonIndexCounter.push_back(i);
 				}
 				else { //CLAS data does not need Fiducial Cut again
 
@@ -1066,7 +1073,14 @@ void genie_analysis::Loop(Int_t choice) {
 
 			if (pdgf[i] == -211  && pf[i] > 0.15)  { //PI minus
 
-				if ( choice == 1) { //GENIE data
+				if ( choice == 1)
+				{ //GENIE data
+					//genie_truth analysis
+					true_PiMinusCounter++;
+					true_ChargedPionCounter++;
+					true_pimiIndexCounter.push_back(i);
+					true_PionIndexCounter.push_back(i);
+					true_ChargedPionIndexCounter.push_back(i);
 
 					//Smearing of pi minus
 					double temp_smear_P = gRandom->Gaus(pf[i],reso_pi*pf[i]);
@@ -1076,8 +1090,7 @@ void genie_analysis::Loop(Int_t choice) {
 					double phi_pion = V3_pi_corr.Phi();
 					V3_pi_corr.SetPhi(phi_pion + TMath::Pi()); // Vec.Phi() is between (-180,180)
 					// Pi_phot_fid_united with +1 is for Piplus and Pi_phot_fid_united with -1 is for Piminus
-					if ( !Pi_phot_fid_united(fbeam_en, V3_pi_corr, -1) )     {  continue; }
-
+					if ( !Pi_phot_fid_united(fbeam_en, V3_pi_corr, -1) ){continue;}
 					num_pimi = num_pimi + 1;
 					num_pi = num_pi + 1;
 					num_pi_phot = num_pi_phot + 1;
@@ -1089,14 +1102,9 @@ void genie_analysis::Loop(Int_t choice) {
 					charge_pi[num_pi_phot - 1] = -1;
 					Smeared_Ppi[num_pi_phot - 1] = temp_smear_P;
 					Smeared_Epi[num_pi_phot - 1] = temp_smear_E;
-
-					//genie_truth analysis
-					PiMinusCounter++;
-					ChargedPionCounter++;
-					pimiIndexCounter.push_back(i);
-					PionIndexCounter.push_back(i);
 				}
-				else { //CLAS data does not need Fiducial Cut again
+				else
+				{ //CLAS data does not need Fiducial Cut again
 					num_pimi = num_pimi + 1;
 					num_pi = num_pi + 1;
 					num_pi_phot = num_pi_phot + 1;
@@ -1107,13 +1115,21 @@ void genie_analysis::Loop(Int_t choice) {
 					PiMinusID.push_back(i);
 					charge_pi[num_pi_phot - 1] = -1;
 				}
-			}
+			}//end of pimi
 
 			// -----------------------------------------------------------------------------------------------------------------------------------------------
 
-			if ( pdgf[i] == 211  && pf[i] > 0.15)  {
+			if ( pdgf[i] == 211  && pf[i] > 0.15)
+			{
+				if ( choice == 1)
+				{ //GENIE data
+					//genie_truth analysis
+					true_PiPlusCounter++;
+					true_ChargedPionCounter++;
+					true_piplIndexCounter.push_back(i);
+					true_PionIndexCounter.push_back(i);
+					true_ChargedPionIndexCounter.push_back(i);
 
-				if ( choice == 1) { //GENIE data
 					//Smearing of pi plus
 					double temp_smear_P = gRandom->Gaus(pf[i],reso_pi*pf[i]);
 					double temp_smear_E = sqrt( temp_smear_P*temp_smear_P + m_pion * m_pion );
@@ -1135,14 +1151,9 @@ void genie_analysis::Loop(Int_t choice) {
 					charge_pi[num_pi_phot - 1] = 1;
 					Smeared_Ppi[num_pi_phot - 1] = temp_smear_P;
 					Smeared_Epi[num_pi_phot - 1] = temp_smear_E;
-
-					//genie_truth analysis
-					PiPlusCounter++;
-					ChargedPionCounter++;
-					piplIndexCounter.push_back(i);
-					PionIndexCounter.push_back(i);
 				}
-				else { //CLAS data does not need Fiducial Cut again
+				else
+				{ //CLAS data does not need Fiducial Cut again
 					num_pipl = num_pipl + 1;
 					num_pi  = num_pi + 1;
 					num_pi_phot = num_pi_phot + 1;
@@ -1153,15 +1164,20 @@ void genie_analysis::Loop(Int_t choice) {
 					PiPlusID.push_back(i);
 					charge_pi[num_pi_phot - 1] = 1;
 				}
-			}
+			} //end of pipl
 
 			// -----------------------------------------------------------------------------------------------------------------------------------------------
 
-			if (pdgf[i] == 22  && pf[i] > 0.3) {
+			if (pdgf[i] == 22  && pf[i] > 0.3)
+			{
+				continue; //6.29.22 No photons!
+			/*	//genie_truth analysis
+				true_GammaCounter++;
 
 				//Determine photon vector for the cut on radiation photon via angle with respect to the electron
 				TVector3 V3_phot_angles(pxf[i],pyf[i],pzf[i]);
-				if (choice == 1) { //GENIE data
+				if (choice == 1) //GENIE data
+				{
 					//no smearing of GENIE photons
 					double phi_photon = V3_phot_angles.Phi();
 					V3_phot_angles.SetPhi(phi_photon + TMath::Pi()); // Vec.Phi() is between (-180,180)
@@ -1184,25 +1200,20 @@ void genie_analysis::Loop(Int_t choice) {
 
 				 //within 40 degrees in theta and 30 degrees in phi. Electron phi has already added 30 degree and between 0 to 360
 
-				 if(V3_phot_angles.Angle(V3_el)*TMath::RadToDeg() < phot_rad_cut && fabs(neut_phi_mod-el_phi_mod) < phot_e_phidiffcut ) {
-
+				 if(V3_phot_angles.Angle(V3_el)*TMath::RadToDeg() < phot_rad_cut && fabs(neut_phi_mod-el_phi_mod) < phot_e_phidiffcut )
+				 {
 					ec_radstat_n[num_pi_phot - 1] = true; //select radiation photons
 					num_phot_rad = num_phot_rad + 1;
 					RadCosThetaGammaEgamma->Fill(V3_phot_angles.CosTheta(),V3_phot_angles.Mag() ,WeightIncl);
 					RadCosDeltaThetaGammaEgamma->Fill( cos( V3_phot_angles.Angle(V3_el) ) ,V3_phot_angles.Mag() ,WeightIncl);
-
 				 }
-
-				 if(!ec_radstat_n[num_pi_phot - 1]) {
+				 if(!ec_radstat_n[num_pi_phot - 1])
+				 {
 					num_pi_phot_nonrad = num_pi_phot_nonrad + 1;
 					charge_pi[num_pi_phot - 1] = 0;
 					NonRadThetaVsPhiGamma->Fill(neut_phi_mod,V3_phot_angles.Theta()*TMath::RadToDeg(),WeightIncl);
-				 }
-
-				 //genie_truth analysis
-				 GammaCounter++;
-			}
-
+				}*/
+			}//end of gamma
 		} //end of hadron loop
 
 		// -------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1211,7 +1222,6 @@ void genie_analysis::Loop(Int_t choice) {
 		if (num_phot_rad > 0) {
 		  continue;
 		}
-
 		// -------------------------------------------------------------------------------------------------------------------------------------------------------------
 		// For GENIE samples, identify the interaction type
 
@@ -1231,7 +1241,83 @@ void genie_analysis::Loop(Int_t choice) {
 		h1_Npi->Fill(num_pi);
 		h1_Nprot->Fill(num_p);
 
-		if (num_p > 0) {
+		//genie_truth analysis:
+		if(num_p == 1 && num_pi == 1) //detected 1p and detected 1pi
+		{ //define E_cal up here
+			double E_cal = Ef[index_p[0]] + El + Ef[index_pi[0]] - m_prot;
+			if(true_ProtonCounter == 2 && true_ChargedPionCounter == 1) //2nd proton undetected
+			{
+				if(true_PiPlusCounter == 1 && true_PiMinusCounter == 0)
+				{
+					h1_E_cal_1p1pi_pipl_2pNotDetected->Fill(E_cal, histoweight);
+				}
+				else if(true_PiPlusCounter == 0 && true_PiMinusCounter == 1)
+				{
+					h1_E_cal_1p1pi_pimi_2pNotDetected->Fill(E_cal, histoweight);
+				}
+				else
+					cout<<"This should not happen! 2p1pi undetect with extra pion! ln 1252" << endl;
+			}
+			else if(true_ProtonCounter == 1 && true_ChargedPionCounter == 2) //2nd pi undetected
+			{
+				//check if the first pion is positively charged
+				if(charge_pi[0] > 0) //detected pion is pipl
+				{
+					if(true_PiPlusCounter == 2 || true_PiMinusCounter == 1) //extra charged pion is pipl or pimi
+					{
+						h1_E_cal_1p1pi_pipl_2piNotDetected->Fill(E_cal, histoweight);
+					}
+					else
+					{
+						cout << "This should not happen. Line 1270" << endl;
+					}
+				}
+				else if(charge_pi[0] < 0) //detected pion is pimi
+				{
+					if(true_PiPlusCounter == 1 || true_PiMinusCounter == 2)//extra charged pion is pipl or PiMinusID
+					{
+						h1_E_cal_1p1pi_pimi_2piNotDetected->Fill(E_cal, histoweight);
+					}
+					else
+					{
+						cout << "This should not happen. Line 1282" << endl;
+					}
+				}
+			}
+			else if(true_ProtonCounter == 2 && true_ChargedPionCounter == 2)
+			{
+				if(charge_pi[0] > 0 ) //detected pion is pipl
+				{
+					if(true_PiPlusCounter == 2 || true_PiMinusCounter == 1) //extra pi is either pipl or pimi
+					{
+						h1_E_cal_1p1pi_pipl_2p2piNotDetected->Fill(E_cal, histoweight);
+					}
+					else
+					{
+						cout << "This should not happen. Ln 1302. " << endl;
+					}
+				}
+				else if(charge_pi[0] < 0) //detected pi is pimi
+				{
+					if(true_PiPlusCounter == 1 || true_PiMinusCounter == 2)
+					{
+						h1_E_cal_1p1pi_pimi_2p2piNotDetected->Fill(E_cal, histoweight);
+					}
+					else
+					{
+						cout << "This should not happen. Ln 1313." << endl;
+					}
+				}
+				else
+				{
+					cout << "Somehow the charge of the first pion is 0, this is not possible! Line 1318" << endl;
+					cout << "The charge of the first pion is: " << charge_pi[0] << endl;
+				}
+			}
+		}
+
+		if (num_p > 0)
+		{
 			h1_Nprot_NonZeroProt->Fill(num_p);
 			h1_Npi_NonZeroProt->Fill(num_pi);
 			h2_QVector_theta_phi->Fill(V3_q_phi_deg,V3_q_theta_deg,WeightIncl);
@@ -1248,7 +1334,8 @@ void genie_analysis::Loop(Int_t choice) {
 		h2_N_pi_phot[num_p]->Fill(ec_num_n,num_pi);
 
 		//Events with exactly 2 protons
-		if(num_p == 2) {
+		if(num_p == 2)
+		{
 
 			//LorentzVectors for protons without momentum smearing or corrections
 			TLorentzVector V4_prot_uncorr1(pxf[index_p[0]],pyf[index_p[0]],pzf[index_p[0]],TMath::Sqrt(m_prot*m_prot+pf[index_p[0]]*pf[index_p[0]]));
@@ -1356,7 +1443,7 @@ void genie_analysis::Loop(Int_t choice) {
 				double Ptot[2] = {0};
 				double E_tot_2p[2] = {0};
 				double p_perp_tot_2p[2] = {0};
-				rotation->prot2_pi1_rot_func(V3_2prot_corr, V3_2prot_uncorr, V3_1pi_corr, V4_2prot_corr, V4_1pi_corr, charge_pi[0], V4_el, E_tot_2p, p_perp_tot_2p, Ptot);
+				//rotation->prot2_pi1_rot_func(V3_2prot_corr, V3_2prot_uncorr, V3_1pi_corr, V4_2prot_corr, V4_1pi_corr, charge_pi[0], V4_el, E_tot_2p, p_perp_tot_2p, Ptot);
 				rotation->prot2_pi1_rot_func(V3_2prot_corr, V3_2prot_uncorr, V3_1pi_corr, V4_2prot_corr, V4_1pi_corr, charge_pi[0], V4_el, E_tot_2p,p_perp_tot_2p, P_2p1pito1p1pi);
 				//double histoweight = pion_acc_ratio * weight_protons * e_acc_ratio * wght/Mott_cross_sec;
 				//Is this correct in the following loop? F.H. 09/01/19
@@ -1787,9 +1874,8 @@ void genie_analysis::Loop(Int_t choice) {
 
 				for(int z = 0; z < N_2prot; z++){ //looping over two protons
 					for(int j=0; j<2;j++){
-						if(charge_pi[j]>0)
+						if(charge_pi[j]>0) //MOVE STUFF DOWN HERE
 						{
-
 						  C2p2piPIPL++;
 							//11.3.21 EDIT: Added 1p1pi tot h1 fill
 							h1_E_cal_1p1pi_pipl_tot->Fill(Ecal2p2pi[z][j],histoweight);
@@ -1948,7 +2034,8 @@ void genie_analysis::Loop(Int_t choice) {
 
 		//Events with exactly 3 protons
 
-		if(num_p == 3) {
+		if(num_p == 3)
+		{
 
 			const int N_3p = 3;
 			TLorentzVector V4_p_uncorr[N_3p], V4_p_corr[N_3p],V4_prot_el[N_3p];
@@ -2231,7 +2318,8 @@ void genie_analysis::Loop(Int_t choice) {
 
 		//Events with exactly one proton
 
-		if( num_p == 1) {
+		if(num_p == 1)
+		{
 
 			//Vector for proton without momentum smearing
 			TLorentzVector V4_prot_uncorr(pxf[index_p[0]],pyf[index_p[0]],pzf[index_p[0]],TMath::Sqrt(m_prot*m_prot+pf[index_p[0]]*pf[index_p[0]]));
@@ -2273,54 +2361,22 @@ void genie_analysis::Loop(Int_t choice) {
 			if(num_pi_phot == 1){
 			  C1p1piALL++;
 
-				if(choice == 1 && PiPlusCounter != 0 && ProtonCounter != 0)
+				if(choice == 1 && true_PiPlusCounter == 1 && true_ProtonCounter == 1)
 				{
-					double E_cal = Ef[ProtonIndexCounter[0]] + El + Ef[piplIndexCounter[0]]-m_prot;
-					if(ProtonCounter != 1 || ChargedPionCounter != 1)
-					{
-						std::cout<<"Prot Count: " << ProtonCounter << " Pipl Count: " << PiPlusCounter <<" CHARGE: " << ChargedPionCounter << std::endl;
-					}
-					if(ProtonCounter == 1 && ChargedPionCounter == 1 && PiPlusCounter == 1)
+					double E_cal = Ef[true_ProtonIndexCounter[0]] + El + Ef[true_piplIndexCounter[0]]-m_prot;
+					if(true_ProtonCounter == 1 && true_ChargedPionCounter == 1 && true_PiPlusCounter == 1)
 					{
 						h1_E_cal_1p1pi_pipl_TRUE->Fill(E_cal, histoweight);
-					}
-					//2p not detected case
-					else if(ProtonCounter == 2 && ChargedPionCounter == 1 && PiPlusCounter == 1)
-					{
-						h1_E_cal_1p1pi_pipl_2pNotDetected->Fill(E_cal, histoweight);
-					}
-					//2pi not detected case
-					else if(ProtonCounter == 1 && ChargedPionCounter == 2 && PiPlusCounter == 2)
-					{
-						h1_E_cal_1p1pi_pipl_2piNotDetected->Fill(E_cal, histoweight);
-					}
-					else if(ProtonCounter == 2 && ChargedPionCounter == 2 && PiPlusCounter ==2)
-					{
-						h1_E_cal_1p1pi_pimi_2p2piNotDetected->Fill(E_cal, histoweight);
 					}
 				}
 
 				//genie_truth analysis
-				if(choice == 1 && ProtonCounter != 0 && PiMinusCounter != 0)
+				if(choice == 1 && true_ProtonCounter == 1 && true_PiMinusCounter == 1)
 				{
-					double E_cal = Ef[ProtonIndexCounter[0]] + El + Ef[pimiIndexCounter[0]]-m_prot;
-					if(ProtonCounter == 1 && ChargedPionCounter == 1 && PiMinusCounter == 1)
+					double E_cal = Ef[true_ProtonIndexCounter[0]] + El + Ef[true_pimiIndexCounter[0]]-m_prot;
+					if(true_ProtonCounter == 1 && true_ChargedPionCounter == 1 && true_PiMinusCounter == 1)
 					{
 						h1_E_cal_1p1pi_pimi_TRUE->Fill(E_cal, histoweight);
-					}
-					//2p not detected case
-					else if(ProtonCounter == 2 && ChargedPionCounter == 1 && PiMinusCounter == 1)
-					{
-						h1_E_cal_1p1pi_pimi_2pNotDetected->Fill(E_cal, histoweight);
-					}
-					//2pi not detected case
-					else if(ProtonCounter == 1 && ChargedPionCounter == 2 && PiMinusCounter == 2)
-					{
-						h1_E_cal_1p1pi_pimi_2piNotDetected->Fill(E_cal, histoweight);
-					}
-					else if(ProtonCounter == 2 && ChargedPionCounter == 2 && PiMinusCounter ==2)
-					{
-						h1_E_cal_1p1pi_pimi_2p2piNotDetected->Fill(E_cal, histoweight);
 					}
 				}
 
@@ -2419,8 +2475,8 @@ void genie_analysis::Loop(Int_t choice) {
 				TVector3 V3_2pi_corr[N_2pi],V3_2pi_rot[N_2pi],V3_p_rot;
 				TLorentzVector V4_2pi_corr[2];
 				double P_1p0pi=0;
-				double P_1p1pi[N_2pi]={0};
-
+				//double P_1p1pi[N_2pi]={0};
+				double P_1p1pi[3] = {0};
 				double pion_acc_ratio[N_2pi] = {0};
 
 				for (int i = 0; i < num_pi_phot; i++) {
@@ -2459,27 +2515,42 @@ void genie_analysis::Loop(Int_t choice) {
 					}
 
 				} //end loop over num_pi_phot
-				double Ecal[2] = {0};
-				double p_miss_perp[2] = {0};
+				double Ecal[3] = {0};
+				double p_miss_perp[3] = {0};
 
-				rotation->prot1_pi2_rot_func(V3_prot_uncorr,V3_2pi_corr, V4_prot_corr, V4_2pi_corr, charge_pi, V4_el, Ecal, p_miss_perp, P_1p1pi);
+				rotation->prot1_pi2_rot_func(V3_prot_uncorr,V3_2pi_corr, V4_prot_corr, V4_2pi_corr, charge_pi, V4_el, Ecal, p_miss_perp, P_1p1pi, 0);
 
 				//weight_pions is 1 for CLAS data
 				double weight_pions = pion_acc_ratio[0] * pion_acc_ratio[1];
 				//histoweight is 1/Mott_cross_sec for CLAS data
 			//	double histoweight = weight_pions * p_acc_ratio * e_acc_ratio * wght/Mott_cross_sec;
 				//1proton, 2 Pion, 1 electron acceptance, GENIE weight and Mott
+				//test case to see if calc works
+				double P_1p1pi_pipl[3] = {0};
+				double Ecal_pipl[3] = {0};
+				double Ecal_pimi[3] = {0};
+				double P_1p1pi_pimi[3] = {0};
+				double p_miss_perp_pipl[3] = {0};
+				double p_miss_perp_pimi[3] = {0};
+				rotation->prot1_pi2_rot_func(V3_prot_uncorr,V3_2pi_corr, V4_prot_corr, V4_2pi_corr, charge_pi, V4_el, Ecal_pipl, p_miss_perp_pipl, P_1p1pi_pipl, 1);
+				rotation->prot1_pi2_rot_func(V3_prot_uncorr,V3_2pi_corr, V4_prot_corr, V4_2pi_corr, charge_pi, V4_el, Ecal_pimi, p_miss_perp_pimi, P_1p1pi_pimi, -1);
 
+				for(int k = 0; k < 3; k++)
+				{
+					h1_E_tot_1p2pi_pipl->Fill(Ecal_pipl[k],P_1p1pi_pipl[k]*histoweight);
+					h1_E_tot_1p2pi_pimi->Fill(Ecal_pimi[k],P_1p1pi_pimi[k]*histoweight);
+				}
 				//---------------------------------- 1p 2pi->1p1pi   ----------------------------------------------
 
-				for(int z = 0; z < N_2pi; z++){  //to consider 2 diff. 1pi states
+				for(int z = 0; z < N_2pi; z++)
+				{  //to consider 2 diff. 1pi states
 					if(charge_pi[z]>0)
 					{
 					  C1p2piPIPL++;
 						//11.3.21 EDIT: Added 1p1pi tot h1
 						h1_E_cal_1p1pi_pipl_tot->Fill(Ecal[z],histoweight);
 
-						h1_E_tot_1p2pi_pipl->Fill(Ecal[z],P_1p1pi[z]*histoweight);
+					//	h1_E_tot_1p2pi_pipl->Fill(Ecal[z],P_1p1pi[z]*histoweight);
 						h1_E_rec_1p2pi_pipl->Fill(E_rec,P_1p1pi[z]*histoweight);
 						h2_Erec_pperp_1p2pi_1p1pi_pipl->Fill(p_miss_perp[z],E_rec,P_1p1pi[z]*histoweight);
 						h2_Etot_pperp_pipl->Fill(p_miss_perp[z],Ecal[z],P_1p1pi[z]*histoweight);
@@ -2553,7 +2624,7 @@ void genie_analysis::Loop(Int_t choice) {
 						//11.3.21 EDIT: Added 1p1pi tot h1
 						h1_E_cal_1p1pi_pimi_tot->Fill(Ecal[z], histoweight);
 
-						h1_E_tot_1p2pi_pimi->Fill(Ecal[z],P_1p1pi[z]*histoweight);
+						//h1_E_tot_1p2pi_pimi->Fill(Ecal[z],P_1p1pi[z]*histoweight);
 					//	h1_E_tot_1p2pi_pimi_const_bin->Fill(Ecal[z],P_1p1pi[z]*histoweight);
 						h1_E_rec_1p2pi_pimi->Fill(E_rec,P_1p1pi[z]*histoweight);
 						h2_Erec_pperp_1p2pi_1p1pi_pimi->Fill(p_miss_perp[z],E_rec,P_1p1pi[z]*histoweight);
@@ -3208,7 +3279,8 @@ void genie_analysis::Loop(Int_t choice) {
 // -------------------------------------------------------------------------------------------------------------------------
 // -------------------------------------------------------------------------------------------------------------------------
 
-double genie_analysis::acceptance_c(double p, double cost, double phi, int particle_id,TFile* file_acceptance) {
+double genie_analysis::acceptance_c(double p, double cost, double phi, int particle_id,TFile* file_acceptance)
+{
 
 	//Redefinition of the phi angle
 	// because the acceptance maps are defined between (-30,330)

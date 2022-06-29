@@ -9,12 +9,14 @@
 #include <TStyle.h>
 #include <TLine.h>
 #include <TGaxis.h>
+#include <string.h>
 
 using namespace std;
 
 double N_E_bins;
 
 void divideByBinWidth(double NumBins, TH1F* h1);
+void fixMax(double NumBins, TH1F* h1);
 void reflectOverX(double NumBins, TH1F* h1);
 double findMax(TH1F* h1, TH1F* h2, TH1F* h3);
 double findMin(TH1F* h1, TH1F* h2, TH1F* h3, TH1F* h4, TH1F* h5, TH1F* h6);
@@ -90,6 +92,13 @@ int main(int argc, char* argv[]){
   divideByBinWidth(N_E_bins, h1_E_cal_1p1pi_pimi_TRUE);
   divideByBinWidth(N_E_bins, h1_E_cal_1p1pi_pipl_TRUE);
 
+  if((strstr(argv[1], "genie")))
+  {
+    fixMax(N_E_bins, h1_E_cal_1p1pi_pimi_TRUE);
+    fixMax(N_E_bins, h1_E_cal_pimi_sub);
+    fixMax(N_E_bins, h1_E_cal_1p1pi_pimi_tot);
+    fixMax(N_E_bins, h1_E_cal_1p1pi_pimi_ONLY);
+  }
   /*reflectOverX(N_E_bins, h1_E_tot_2p1pi_1p1pi_pimi);
   reflectOverX(N_E_bins, h1_E_tot_1p2pi_pimi);
   reflectOverX(N_E_bins, h1_E_tot_2p2pi_pimi);
@@ -223,95 +232,100 @@ int main(int argc, char* argv[]){
   //Create png
   c4->Print("piplSubtraction_4GeV.png");
 
+  //Reflect subtraction histograms over the x axis to be more comparable
+  reflectOverX(N_E_bins, h1_E_tot_2p1pi_1p1pi_pimi);
+  reflectOverX(N_E_bins, h1_E_tot_1p2pi_pimi);
+  reflectOverX(N_E_bins, h1_E_tot_2p2pi_pimi);
+  reflectOverX(N_E_bins, h1_E_tot_1p3pi_pimi);
+  reflectOverX(N_E_bins, h1_E_tot_3p1pi_pimi);
+  reflectOverX(N_E_bins, h1_E_tot_2p1pi_1p1pi_pipl);
+  reflectOverX(N_E_bins, h1_E_tot_1p2pi_pipl);
+  reflectOverX(N_E_bins, h1_E_tot_2p2pi_pipl);
+  reflectOverX(N_E_bins, h1_E_tot_1p3pi_pipl);
+  reflectOverX(N_E_bins, h1_E_tot_3p1pi_pipl);
+
+  h1_E_cal_1p1pi_pimi_2piNotDetected  ->SetLineStyle(2);
+  h1_E_cal_1p1pi_pimi_2pNotDetected   ->SetLineStyle(2);
+  h1_E_cal_1p1pi_pimi_2p2piNotDetected->SetLineStyle(2);
+  h1_E_cal_1p1pi_pipl_2piNotDetected  ->SetLineStyle(2);
+  h1_E_cal_1p1pi_pipl_2pNotDetected   ->SetLineStyle(2);
+  h1_E_cal_1p1pi_pipl_2p2piNotDetected->SetLineStyle(2);
+
+
   TCanvas *c5 = new TCanvas("c5","",567,370);
-  h1_E_cal_1p1pi_pimi_tot->SetMaximum(c1Max*1.05);
-  h1_E_cal_1p1pi_pimi_tot->SetAxisRange(0,5.5,"X");
-  h1_E_cal_1p1pi_pimi_tot->SetLineColor(1);
-  h1_E_cal_1p1pi_pimi_ONLY->SetLineColor(2);
+  h1_E_cal_1p1pi_pimi_ONLY->SetAxisRange(0,5.5,"X");
+  h1_E_cal_1p1pi_pimi_ONLY->SetMinimum(-10000);
   h1_E_cal_1p1pi_pimi_ONLY->SetLineStyle(1);
-  h1_E_cal_1p1pi_pimi_tot->GetXaxis()->SetTitle("E_{cal}");
-  h1_E_cal_1p1pi_pimi_tot->GetXaxis()->SetTitleSize(0.05);
-  h1_E_cal_1p1pi_pimi_tot->GetXaxis()->SetLabelSize(0.05);
-  h1_E_cal_1p1pi_pimi_tot->GetYaxis()->SetLabelSize(0.05);
-  h1_E_cal_1p1pi_pimi_tot->GetXaxis()->SetTitleOffset(0.7);
-  h1_E_cal_1p1pi_pimi_tot->Draw("HIST");
-  h1_E_cal_1p1pi_pimi_ONLY->Draw("HIST SAME");
+  h1_E_cal_1p1pi_pimi_ONLY->SetLineColor(2);
+  h1_E_cal_1p1pi_pimi_ONLY->GetXaxis()->SetTitle("E_{cal}");
+  h1_E_cal_1p1pi_pimi_ONLY->GetXaxis()->SetTitleSize(0.05);
+  h1_E_cal_1p1pi_pimi_ONLY->GetXaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pimi_ONLY->GetYaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pimi_ONLY->GetXaxis()->SetTitleOffset(0.7);
+  h1_E_cal_1p1pi_pimi_ONLY->Draw("HIST");
+  h1_E_tot_2p1pi_1p1pi_pimi->Draw("HIST SAME");
   h1_E_cal_pimi_sub->Draw("HIST SAME");
   h1_E_cal_1p1pi_pimi_2pNotDetected->Draw("HIST SAME");
   c5->Print("2pPIMI_notDetected.png");
 
   TCanvas *c6 = new TCanvas("c6","",567,370);
-  h1_E_cal_1p1pi_pimi_tot->SetAxisRange(0,5.5,"X");
-  h1_E_cal_1p1pi_pimi_tot->SetLineColor(1);
-  h1_E_cal_1p1pi_pimi_ONLY->SetLineColor(2);
-  h1_E_cal_1p1pi_pimi_tot->GetXaxis()->SetTitle("E_{cal}");
-  h1_E_cal_1p1pi_pimi_tot->GetXaxis()->SetTitleSize(0.05);
-  h1_E_cal_1p1pi_pimi_tot->GetXaxis()->SetLabelSize(0.05);
-  h1_E_cal_1p1pi_pimi_tot->GetYaxis()->SetLabelSize(0.05);
-  h1_E_cal_1p1pi_pimi_tot->GetXaxis()->SetTitleOffset(0.7);
-  h1_E_cal_1p1pi_pimi_tot->Draw("HIST");
-  h1_E_cal_1p1pi_pimi_ONLY->Draw("HIST SAME");
+  h1_E_cal_1p1pi_pimi_ONLY->GetXaxis()->SetTitle("E_{cal}");
+  h1_E_cal_1p1pi_pimi_ONLY->GetXaxis()->SetTitleSize(0.05);
+  h1_E_cal_1p1pi_pimi_ONLY->GetXaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pimi_ONLY->GetYaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pimi_ONLY->GetXaxis()->SetTitleOffset(0.7);
+  h1_E_cal_1p1pi_pimi_ONLY->Draw("HIST");
+  h1_E_tot_1p2pi_pimi->Draw("HIST SAME");
   h1_E_cal_pimi_sub->Draw("HIST SAME");
   h1_E_cal_1p1pi_pimi_2piNotDetected->Draw("HIST SAME");
   c6->Print("2piPIMI_notDetected.png");
 
   TCanvas *c7 = new TCanvas("c7","",567,370);
-  h1_E_cal_1p1pi_pimi_tot->SetAxisRange(0,5.5,"X");
-  h1_E_cal_1p1pi_pimi_tot->SetLineColor(1);
-  h1_E_cal_1p1pi_pimi_ONLY->SetLineColor(2);
-  h1_E_cal_1p1pi_pimi_tot->GetXaxis()->SetTitle("E_{cal}");
-  h1_E_cal_1p1pi_pimi_tot->GetXaxis()->SetTitleSize(0.05);
-  h1_E_cal_1p1pi_pimi_tot->GetXaxis()->SetLabelSize(0.05);
-  h1_E_cal_1p1pi_pimi_tot->GetYaxis()->SetLabelSize(0.05);
-  h1_E_cal_1p1pi_pimi_tot->GetXaxis()->SetTitleOffset(0.7);
-  h1_E_cal_1p1pi_pimi_tot->Draw("HIST");
-  h1_E_cal_1p1pi_pimi_ONLY->Draw("HIST SAME");
+  h1_E_cal_1p1pi_pimi_ONLY->GetXaxis()->SetTitle("E_{cal}");
+  h1_E_cal_1p1pi_pimi_ONLY->GetXaxis()->SetTitleSize(0.05);
+  h1_E_cal_1p1pi_pimi_ONLY->GetXaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pimi_ONLY->GetYaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pimi_ONLY->GetXaxis()->SetTitleOffset(0.7);
+  h1_E_cal_1p1pi_pimi_ONLY->Draw("HIST");
+  h1_E_tot_2p2pi_pimi->Draw("HIST SAME");
   h1_E_cal_pimi_sub->Draw("HIST SAME");
   h1_E_cal_1p1pi_pimi_2p2piNotDetected->Draw("HIST SAME");
   c7->Print("2p2piPIMI_notDetected.png");
 
   TCanvas *c8 = new TCanvas("c8","",567,370);
-  h1_E_cal_1p1pi_pipl_tot->SetAxisRange(0,5.5,"X");
-  h1_E_cal_1p1pi_pipl_tot->SetMaximum(c2Max*1.05);
-  h1_E_cal_1p1pi_pipl_tot->SetLineColor(1);
-  h1_E_cal_1p1pi_pipl_ONLY->SetLineColor(2);
-  h1_E_cal_1p1pi_pipl_tot->GetXaxis()->SetTitle("E_{cal}");
-  h1_E_cal_1p1pi_pipl_tot->GetXaxis()->SetTitleSize(0.05);
-  h1_E_cal_1p1pi_pipl_tot->GetXaxis()->SetLabelSize(0.05);
-  h1_E_cal_1p1pi_pipl_tot->GetYaxis()->SetLabelSize(0.05);
-  h1_E_cal_1p1pi_pipl_tot->GetXaxis()->SetTitleOffset(0.7);
-  h1_E_cal_1p1pi_pipl_tot->Draw("HIST");
-  h1_E_cal_1p1pi_pipl_ONLY->Draw("HIST SAME");
+  h1_E_cal_1p1pi_pipl_ONLY->SetMinimum(-1000);
+  h1_E_cal_1p1pi_pipl_ONLY->SetLineStyle(1);
+  h1_E_cal_1p1pi_pipl_ONLY->GetXaxis()->SetTitle("E_{cal}");
+  h1_E_cal_1p1pi_pipl_ONLY->GetXaxis()->SetTitleSize(0.05);
+  h1_E_cal_1p1pi_pipl_ONLY->GetXaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pipl_ONLY->GetYaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pipl_ONLY->GetXaxis()->SetTitleOffset(0.7);
+  h1_E_cal_1p1pi_pipl_ONLY->Draw("HIST");
+  h1_E_tot_2p1pi_1p1pi_pipl->Draw("HIST SAME");
   h1_E_cal_pipl_sub->Draw("HIST SAME");
   h1_E_cal_1p1pi_pipl_2pNotDetected->Draw("HIST SAME");
   c8->Print("2ppipl_notDetected.png");
 
   TCanvas *c9 = new TCanvas("c9","",567,370);
-  h1_E_cal_1p1pi_pipl_tot->SetAxisRange(0,5.5,"X");
-  h1_E_cal_1p1pi_pipl_tot->SetLineColor(1);
-  h1_E_cal_1p1pi_pipl_ONLY->SetLineColor(2);
-  h1_E_cal_1p1pi_pipl_tot->GetXaxis()->SetTitle("E_{cal}");
-  h1_E_cal_1p1pi_pipl_tot->GetXaxis()->SetTitleSize(0.05);
-  h1_E_cal_1p1pi_pipl_tot->GetXaxis()->SetLabelSize(0.05);
-  h1_E_cal_1p1pi_pipl_tot->GetYaxis()->SetLabelSize(0.05);
-  h1_E_cal_1p1pi_pipl_tot->GetXaxis()->SetTitleOffset(0.7);
-  h1_E_cal_1p1pi_pipl_tot->Draw("HIST");
-  h1_E_cal_1p1pi_pipl_ONLY->Draw("HIST SAME");
+  h1_E_cal_1p1pi_pipl_ONLY->GetXaxis()->SetTitle("E_{cal}");
+  h1_E_cal_1p1pi_pipl_ONLY->GetXaxis()->SetTitleSize(0.05);
+  h1_E_cal_1p1pi_pipl_ONLY->GetXaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pipl_ONLY->GetYaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pipl_ONLY->GetXaxis()->SetTitleOffset(0.7);
+  h1_E_cal_1p1pi_pipl_ONLY->Draw("HIST");
+  h1_E_tot_1p2pi_pipl->Draw("HIST SAME");
   h1_E_cal_pipl_sub->Draw("HIST SAME");
   h1_E_cal_1p1pi_pipl_2piNotDetected->Draw("HIST SAME");
   c9->Print("2pipipl_notDetected.png");
 
   TCanvas *c10 = new TCanvas("c10","",567,370);
-  h1_E_cal_1p1pi_pipl_tot->SetAxisRange(0,5.5,"X");
-  h1_E_cal_1p1pi_pipl_tot->SetLineColor(1);
-  h1_E_cal_1p1pi_pipl_ONLY->SetLineColor(2);
-  h1_E_cal_1p1pi_pipl_tot->GetXaxis()->SetTitle("E_{cal}");
-  h1_E_cal_1p1pi_pipl_tot->GetXaxis()->SetTitleSize(0.05);
-  h1_E_cal_1p1pi_pipl_tot->GetXaxis()->SetLabelSize(0.05);
-  h1_E_cal_1p1pi_pipl_tot->GetYaxis()->SetLabelSize(0.05);
-  h1_E_cal_1p1pi_pipl_tot->GetXaxis()->SetTitleOffset(0.7);
-  h1_E_cal_1p1pi_pipl_tot->Draw("HIST");
-  h1_E_cal_1p1pi_pipl_ONLY->Draw("HIST SAME");
+  h1_E_cal_1p1pi_pipl_ONLY->GetXaxis()->SetTitle("E_{cal}");
+  h1_E_cal_1p1pi_pipl_ONLY->GetXaxis()->SetTitleSize(0.05);
+  h1_E_cal_1p1pi_pipl_ONLY->GetXaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pipl_ONLY->GetYaxis()->SetLabelSize(0.05);
+  h1_E_cal_1p1pi_pipl_ONLY->GetXaxis()->SetTitleOffset(0.7);
+  h1_E_cal_1p1pi_pipl_ONLY->Draw("HIST");
+  h1_E_tot_2p2pi_pipl->Draw("HIST SAME");
   h1_E_cal_pipl_sub->Draw("HIST SAME");
   h1_E_cal_1p1pi_pipl_2p2piNotDetected->Draw("HIST SAME");
   c10->Print("2p2pipipl_notDetected.png");
@@ -607,6 +621,12 @@ double findMin(TH1F* h1, TH1F* h2, TH1F* h3, TH1F* h4, TH1F* h5, TH1F* h6)
   }
   return min;
 
+}
+
+void fixMax(double NumBins, TH1F* h1)
+{
+  int maxLocation = h1->GetMaximumBin();
+  h1->SetBinContent(maxLocation, h1->GetBinContent(maxLocation)*.5);
 }
 
 /*

@@ -11,37 +11,37 @@
 #include <TRandom3.h>
 #include <TF1.h>
 #include <TGraph.h>
+#include <vector>
 #include "Subtraction.h"
 
-void Subtraction::prot1_pi2_rot_func(TVector3  V3prot, TVector3 V3pi[2], TLorentzVector V4prot, TLorentzVector V4pi[2], int q_pi[2], TLorentzVector V4_el, double Ecal[2], double p_miss_perp[2], double P_1p1pi[]){
-
-    const int N_pi=2;
+void Subtraction::prot1_pi2_rot_func(TVector3  V3prot, TVector3 V3pi[2], TLorentzVector V4prot, TLorentzVector V4pi[2], int q_pi[2], TLorentzVector V4_el, double Ecal[3], double p_miss_perp[3], double P_1p1pi[], int targetCharge)
+{
+    /*const int N_pi=2;
     double rotation_ang;
     TVector3 V3_rot_pi[2], V3_p_rot;
     bool status_pi[2]={true};
+    bool status_prot = true;
 
     double N_all = 0;
     double N_1p1pi[2]={0};
-
-       for(int g=0; g<N_tot; g++){
-
+       for(int g=0; g<N_tot; g++)
+       {
          rotation_ang=gRandom->Uniform(0,2*TMath::Pi());
          V3_p_rot= V3prot;
 
          V3_p_rot.Rotate(rotation_ang,V3q);
 
-         for(int i=0;i<N_pi;i++){
-
+         status_prot = PFiducialCut(fbeam_en, V3_p_rot);
+         for(int i=0;i<N_pi;i++)
+         {
   	        V3_rot_pi[i]=V3pi[i];
   	        V3_rot_pi[i].Rotate(rotation_ang,V3q);
   	        status_pi[i]=Pi_phot_fid_united(fbeam_en, V3_rot_pi[i],q_pi[i]);
-
          }
 
-         if(PFiducialCut(fbeam_en, V3_p_rot)  && status_pi[0]  && !status_pi[1] ) N_1p1pi[0]++;
-         if(PFiducialCut(fbeam_en, V3_p_rot)  && !status_pi[0]  && status_pi[1] ) N_1p1pi[1]++;
-         if(PFiducialCut(fbeam_en, V3_p_rot)  && status_pi[0]  && status_pi[1] ) N_all++;
-
+         if(status_prot  && status_pi[0]  && !status_pi[1] ) N_1p1pi[0]++;
+         if(status_prot  && !status_pi[0]  && status_pi[1] ) N_1p1pi[1]++;
+         if(status_prot  && status_pi[0]  && status_pi[1] ) N_all++;
        }
          //----------------------1p2pi->1p1pi
          for(int h=0;h<N_pi;h++)
@@ -51,8 +51,143 @@ void Subtraction::prot1_pi2_rot_func(TVector3  V3prot, TVector3 V3pi[2], TLorent
             P_1p1pi[h] = -(N_1p1pi[h]/N_all);
            else
             P_1p1pi[h]=0; //N_all!=0 statement
+         }*/
+         const int N_pi=2;
+         double rotation_ang;
+         TVector3 V3_rot_pi[2], V3_p_rot;
+         bool status_pi[2]={true};
+         bool status_prot = true;
+
+         double N_all = 0;
+         double N_1p1pi[2]={0};
+         double N_1p1pi_diff[2]={0}; //for when there is 1 pimi and 1 pipl
+
+         std::vector<int> piplIndexCounter;
+         std::vector<int> pimiIndexCounter;
+         int PiPlusCounter = 0;
+         int PiMinusCounter = 0;
+
+         for(int i = 0; i < N_pi; i++)
+         {
+           if(q_pi[i] > 0)
+           {
+             piplIndexCounter.push_back(i);
+             PiPlusCounter++;
+           }
+           else if(q_pi[i] < 0)
+           {
+             pimiIndexCounter.push_back(i);
+             PiMinusCounter++;
+           }
          }
-       }
+         //Check if putting for inside if statement for combo check speeds up the code at all (use linux "time" command)
+         for(int g = 0; g < N_tot; g++) // Get number of charges, set up vectors, etc.
+         {
+           rotation_ang=gRandom->Uniform(0,2*TMath::Pi());
+           V3_p_rot= V3prot;
+
+           V3_p_rot.Rotate(rotation_ang,V3q);
+
+           status_prot = PFiducialCut(fbeam_en, V3_p_rot);
+
+           for(int i = 0; i < N_pi; i++)// Get number of charges, set up vectors, etc.
+           {
+             V3_rot_pi[i]=V3pi[i];
+             V3_rot_pi[i].Rotate(rotation_ang,V3q);
+             status_pi[i]=Pi_phot_fid_united(fbeam_en, V3_rot_pi[i],q_pi[i]);
+           }
+         //  if(status_prot  && status_pi[0]  && !status_pi[1] ) N_1p1pi[0]++; //1st pion det
+         //  if(status_prot  && !status_pi[0]  && status_pi[1] ) N_1p1pi[1]++; //2nd pion det
+           if(status_prot  && status_pi[0]  && status_pi[1] ) N_all++; //both pion det
+           if(targetCharge > 0 && PiPlusCounter == 2 && PiMinusCounter == 0)
+           {
+             if(status_prot  && status_pi[piplIndexCounter[0]]  && !status_pi[piplIndexCounter[1]] ) N_1p1pi[0]++; //1st pion det
+             if(status_prot  && !status_pi[piplIndexCounter[0]]  && status_pi[piplIndexCounter[1]] ) N_1p1pi[1]++; //2nd pion det
+           }
+           else if(targetCharge < 0 && PiPlusCounter == 0 && PiMinusCounter == 2)
+           {
+             if(status_prot  && status_pi[pimiIndexCounter[0]]  && !status_pi[pimiIndexCounter[1]] ) N_1p1pi[0]++; //1st pion det
+             if(status_prot  && !status_pi[pimiIndexCounter[0]]  && status_pi[pimiIndexCounter[1]] ) N_1p1pi[1]++; //2nd pion det
+           }
+           else if(PiPlusCounter == 1 && PiMinusCounter == 1)
+           {
+             if(status_prot && status_pi[piplIndexCounter[0]] && !status_pi[pimiIndexCounter[0]]) N_1p1pi_diff[piplIndexCounter[0]]++; //the pipl is det
+             if(status_prot && !status_pi[piplIndexCounter[0]] && status_pi[pimiIndexCounter[0]]) N_1p1pi_diff[pimiIndexCounter[0]]++; //the pimi is det
+           }
+           else if(targetCharge == 0) //Previous logic to avoid seg fault errors 6.29.22 -> Previous logic did not account for detection of diff pion charges
+           {
+             if(status_prot  && status_pi[0]  && !status_pi[1] ) N_1p1pi[0]++;
+             if(status_prot  && !status_pi[0]  && status_pi[1] ) N_1p1pi[1]++;
+           }
+         }
+         //Check if this is to contribute to pipl or pimi histos
+         if(targetCharge == 1) // contribute to pipl
+         {
+           if(PiPlusCounter == 2 && PiMinusCounter == 0)
+           {
+             for(int h = 0; h<N_pi; h++) //Go over two pions that are the same (both pipl)
+             {
+               prot1_pi1_en_calc(V4prot, V4pi[h], q_pi[h], V4_el, &Ecal[h], &p_miss_perp[h]);
+               if(N_all!=0)
+               {
+                 P_1p1pi[h] = -(N_1p1pi[h]/N_all);
+               }
+               else
+                P_1p1pi[h]=0; //N_all!=0 statement
+             }
+           }
+           else if(PiPlusCounter == 1 && PiMinusCounter == 1)
+           {
+             prot1_pi1_en_calc(V4prot, V4pi[piplIndexCounter[0]], q_pi[piplIndexCounter[0]], V4_el, &Ecal[2], &p_miss_perp[2]);
+             if(N_all!=0)
+             {
+               P_1p1pi[2] = -(N_1p1pi_diff[piplIndexCounter[0]]/N_all);
+             }
+             else
+               P_1p1pi[2] = 0;
+           }
+         }
+
+         else if(targetCharge == -1)
+         {
+           if(PiPlusCounter == 0 && PiMinusCounter == 2)
+           {
+             for(int h = 0; h<N_pi; h++)
+             {
+               prot1_pi1_en_calc(V4prot, V4pi[h], q_pi[h], V4_el, &Ecal[h], &p_miss_perp[h]);
+               if(N_all!=0)
+                P_1p1pi[h] = -(N_1p1pi[h]/N_all);
+               else
+                P_1p1pi[h]=0; //N_all!=0 statement
+             }
+           }
+           else if(PiPlusCounter == 1 && PiMinusCounter == 1)
+           {
+             prot1_pi1_en_calc(V4prot, V4pi[pimiIndexCounter[0]], q_pi[pimiIndexCounter[0]], V4_el, &Ecal[2], &p_miss_perp[2]);
+             if(N_all!=0)
+               P_1p1pi[2] = -(N_1p1pi_diff[pimiIndexCounter[0]]/N_all);
+             else
+               P_1p1pi[2] = 0;
+           }
+         }
+         else if(targetCharge == 0)
+         {
+           //----------------------1p2pi->1p1pi
+           for(int h=0;h<N_pi;h++)
+           {
+             prot1_pi1_en_calc(V4prot, V4pi[h], q_pi[h], V4_el, &Ecal[h], &p_miss_perp[h]);
+             if(N_all!=0)
+              P_1p1pi[h] = -(N_1p1pi[h]/N_all);
+             else
+              P_1p1pi[h]=0; //N_all!=0 statement
+           }
+         }
+         else
+         {
+           std::cout << "This should not happen!" << std::endl;
+         }
+}
+
 
 void Subtraction::prot1_pi3_rot_func(TVector3  V3prot, TVector3 V3pi[3], TLorentzVector V4prot, TLorentzVector V4pi[3], int q_pi[3], TLorentzVector V4_el, double Ecal[3], double p_miss_perp[3], double P_tot[3]){
     const int N_pi=3;
@@ -120,7 +255,7 @@ void Subtraction::prot1_pi3_rot_func(TVector3  V3prot, TVector3 V3pi[3], TLorent
               V4pi2[1] = V4pi[j];
               q_pi2[0] = q_pi[i];
               q_pi2[1] = q_pi[j];
-              prot1_pi2_rot_func(V3prot, V3pi2, V4prot, V4pi2, q_pi2, V4_el, Ecal2, p_miss_perp2, P_1p1pi);
+              prot1_pi2_rot_func(V3prot, V3pi2, V4prot, V4pi2, q_pi2, V4_el, Ecal2, p_miss_perp2, P_1p1pi, 0);
               Ecal[i] = Ecal2[0];
               Ecal[j] = Ecal2[1];
               p_miss_perp[i] = p_miss_perp2[0];
@@ -140,6 +275,7 @@ void Subtraction::prot1_pi3_rot_func(TVector3  V3prot, TVector3 V3pi[3], TLorent
 
 
 void Subtraction::prot2_pi1_rot_func(TVector3 V3_2prot_corr[2],TVector3 V3_2prot_uncorr[2],TVector3 V3_1pi, TLorentzVector V4_2prot_corr[2], TLorentzVector V4_1pi, int q_pi, TLorentzVector V4_el, double Ecal[2], double p_miss_perp[2], double P_tot[2]){
+    //Check charge of pion matches what we want to fill :)
     const int N_2prot=2;
     TVector3 V3_2p_rotated[2],V3_1pirot;
     bool pi1_stat=true;
@@ -165,7 +301,7 @@ void Subtraction::prot2_pi1_rot_func(TVector3 V3_2prot_corr[2],TVector3 V3_2prot
            V3_1pirot.Rotate(rot_angle,V3q);
            pi1_stat=Pi_phot_fid_united(fbeam_en, V3_1pirot, q_pi);
 
-
+           //make prot_stat :(
            if(PFiducialCut(fbeam_en, V3_2p_rotated[0]) && !PFiducialCut(fbeam_en, V3_2p_rotated[1]) && pi1_stat) N_1p_1pi[0]++;
            if(!PFiducialCut(fbeam_en, V3_2p_rotated[0]) && PFiducialCut(fbeam_en, V3_2p_rotated[1]) && pi1_stat) N_1p_1pi[1]++;
            if(PFiducialCut(fbeam_en, V3_2p_rotated[0]) && PFiducialCut(fbeam_en, V3_2p_rotated[1]) && pi1_stat) N_all++;
@@ -231,7 +367,7 @@ void Subtraction::prot2_pi2_rot_func(TVector3 V3_2prot_corr[2],TVector3 V3_2prot
         //Energy calculation is const between all subtraction types
         for(int i=0; i < 2; i++) //Helps avoid segmentation fault error :)
         {
-          prot1_pi2_rot_func(V3_2prot_uncorr[i], V3_2pi, V4_2prot_corr[i], V4_2pi, q_pi, V4_el, Ecal2, p_miss_perp2, P_tot);
+          prot1_pi2_rot_func(V3_2prot_uncorr[i], V3_2pi, V4_2prot_corr[i], V4_2pi, q_pi, V4_el, Ecal2, p_miss_perp2, P_tot, 0);
           Ecal[i][0] = Ecal2[0];
           Ecal[i][1] = Ecal2[1];
           p_miss_perp[i][0] = p_miss_perp2[0];
